@@ -10,6 +10,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@auth0/auth0-react": "^2.3.0",
     "@tailwindcss/vite": "^4.0.14",
     "dotenv": "^16.4.7",
     "react": "^19.0.0",
