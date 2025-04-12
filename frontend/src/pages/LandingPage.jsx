@@ -1,10 +1,12 @@
 import React from 'react'
+import Header from '../components/landingPage/Header'
+import Landingbody from '../components/landingPage/LandingBody'
 
 const landingPage = () => {
   return (
     <>
-      <div class="color-green font-bold">landingPage sjafjdskljfklasjfkjsf</div>
-      <h1 class="text-3xl font-bold underline"> Hello world! </h1>
+      <Header/>
+      <Landingbody/>     
     </>
   )
 }
