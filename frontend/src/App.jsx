@@ -1,9 +1,8 @@
-import { useState } from 'react'
 import LandingPage from './pages/landingPage'
 import './style/App.css'
 import { RouterProvider, createBrowserRouter } from 'react-router-dom';
 import Dashboard from './pages/Dashboard';
-import Roomdashboard from './components/Room/Roomdashboard';
+import Roomdashboard from './components/JoinRoom/JoinRoomdashboard';
 
 
 
@@ -20,7 +19,7 @@ function App() {
     },
     {
       path:'/room/:roomid',
-      element:<Roomdashboard></Roomdashboard>
+      element:<Roomdashboard/>
     }
   ])
 
