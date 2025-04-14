@@ -1,19 +1,69 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom';
 import { useAuth0 } from "@auth0/auth0-react";
 import axios from '/src/lib/axios.js'
 import Whiteboard from "../Canvas/JoinWhiteboard"
 import OnlineControls from './OnlineControls';
+import socket from '/src/lib/socket.js';
+import { toast } from 'react-hot-toast';
 
 const Roomdashboard = () => {
     const navigate=useNavigate();
     const { roomid } = useParams();
     const { user } = useAuth0();
+    const [roomDetails, setroomDetails] = useState(null)
+    const [isHost, setisHost] = useState(false);
+    useEffect(() => {
+        if(!user) return;
+        const getroomdetails=async (params) => {
+            try {
+                const res=await axios.get(`/room/roomdetails/${roomid}`)
+                setroomDetails(res.data)
+                console.log(res);
+                setisHost((user.sub===res.data.hostuser));
+            } catch (error) {
+                console.log("Error fetching room details", error);
+            }
+            
+        }
+        if(user) getroomdetails();
+
+        socket.on('User Joined',(data)=>{
+            toast.success(`${data.name} have Joined the room!`);
+
+        })
+        socket.on('User Left',(data)=>{
+            toast.success(`${data.name} have left the room!`);
+        })
+
+        socket.on('participantsUpdate', (uparticipants) => {
+            console.log('Participants updated:', uparticipants);
+            setroomDetails((prev) => ({ ...prev, participants: uparticipants }));
+        });
+        socket.on('Kickout',(data)=>{
+            console.log(data.name);
+            if(data.userid!==user.sub) toast.error(`${data.name} was kicked from the room!`);
+            else if(data.userid===user.sub) navigate('/dashboard');
+        })
+      return () => {
+
+        socket.off('User Joined');
+        socket.off('User Left');
+        socket.off('participantsUpdate');
+        socket.off('Kickout')
+      };
+    }, [user,roomid]);
     const handleLeave = async (params) => {
         try {
             const res = await axios.put('/room/leave', { roomid,user });
             console.log(res);
-            if (res?.data?.msg === 'Left the room successfully' || res?.data?.msg === 'Host ended the meeting!'  ) navigate('/');
+            if (res?.data?.msg === 'Left the room successfully' || res?.data?.msg === 'Host ended the meeting!'){
+                socket.emit('leaveroom',{
+                    name:user.name || user.nickname || "Ananoymus",
+                    roomid:roomid,
+                })
+                navigate('/dashboard');
+            }
         } catch (error) {
             console.log("Error", error);
         }
@@ -31,30 +81,14 @@ const Roomdashboard = () => {
                         Leave Room
                     </button>
                 </div>
-
-                {/* Participants row */}
-                {/* <div className="bg-[#5C8374] p-2 overflow-x-auto whitespace-nowrap flex gap-4">
-                    <h2>PLayers!</h2>
-        
-                     {roomDetails?.participants?.length > 0 ? (
-                        roomDetails.participants.map((p, i) => (
-                            <div key={i} className="bg-[#1B4242] text-[#9EC8B9] px-4 py-2 rounded-lg shadow">
-                                {p}
-                            </div>
-                        ))
-                    ) : (
-                        <p className="text-[#092635]">No participants yet.</p>
-                    )} 
-                </div> */}
-
-                {/* Main content area */}
-
-
                 <div className="flex flex-1 flex-col md:flex-row gap-4 p-4">
-                <OnlineControls/>
+                <OnlineControls isHost
+                hostid={roomDetails?.hostuser}
+                participants={roomDetails?.participants} />
+
                     {/* Whiteboard Section */}
                     <div className="flex-1 bg-white rounded-xl shadow-md p-2">
-                        <Whiteboard />
+                        <Whiteboard isHost />
                     </div>
 
                     {/* Right Sidebar */}

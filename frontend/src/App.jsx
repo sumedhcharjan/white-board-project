@@ -3,28 +3,29 @@ import './style/App.css'
 import { RouterProvider, createBrowserRouter } from 'react-router-dom';
 import Dashboard from './pages/Dashboard';
 import Roomdashboard from './components/JoinRoom/JoinRoomdashboard';
-
+import { Toaster } from 'react-hot-toast';
 
 
 function App() {
 
-  const router=createBrowserRouter([
+  const router = createBrowserRouter([
     {
       path: "/",
-      element: <LandingPage/>
+      element: <LandingPage />
     },
     {
       path: "/dashboard",
-      element: <Dashboard/>
+      element: <Dashboard />
     },
     {
-      path:'/room/:roomid',
-      element:<Roomdashboard/>
+      path: '/room/:roomid',
+      element: <Roomdashboard />
     }
   ])
 
   return (
     <>
+      <Toaster position="top-right" reverseOrder={false} />
       <RouterProvider router={router} />
     </>
   )

@@ -2,9 +2,9 @@ import { useNavigate } from 'react-router-dom';
 import { useState } from 'react';
 import { useAuth0 } from "@auth0/auth0-react";
 import axios from '/src/lib/axios.js'
-
+import socket from '/src/lib/socket.js'
 const DashBody = () => {
-    const {user}=useAuth0();
+    const { user } = useAuth0();
     const navigate = useNavigate();
     const [joinid, setjoinid] = useState("")
     const [joining, setjoining] = useState(false);
@@ -17,34 +17,47 @@ const DashBody = () => {
     const handleCreateRoom = async (params) => {
         setcreating(true);
         try {
-            const res=await axios.post('/room/create',{user});
+            const res = await axios.post('/room/create', { user });
             console.log(res);
-            if(res?.data?.roomid) setroomid(res?.data?.roomid)
+            if (res?.data?.roomid) setroomid(res?.data?.roomid)
         } catch (error) {
             console.log(error);
         }
     }
 
-    const handleCreateJoin=async (params) => {
+    const handleCreateJoin = async (params) => {
         try {
-            const res=await axios.put('/room/joinroom',{user,Rid:roomid});
+            const res = await axios.put('/room/joinroom', { user, Rid: roomid });
             console.log(res);
-            if(res?.data?.msg==='Joined room') navigate(`/room/${roomid}`)
-        } catch (error) {
-            console.log(error);
-        }   
-    }
-    const handleJoinRoom=async (params) => {
-        try {
-            const res=await axios.put('/room/joinroom',{user,Rid:joinid});
-            console.log(res);
-            if(res?.data?.msg==='Joined room') navigate(`/room/${joinid}`)
+            if (res?.data?.msg === 'Joined room') {
+                navigate(`/room/${roomid}`)
+                socket.emit('joinroom', {
+                    name: user.name || user.nickname || "Ananoymus",
+                    roomid: roomid,
+                })
+            }
+
         } catch (error) {
             console.log(error);
         }
-        
     }
-    const handleCopy=(e) => {
+    const handleJoinRoom = async (params) => {
+        try {
+            const res = await axios.put('/room/joinroom', { user, Rid: joinid });
+            console.log(res);
+            if (res?.data?.msg === 'Joined room') {
+                navigate(`/room/${joinid}`);
+                socket.emit('joinroom', {
+                    name: user.name || user.nickname || "Ananoymus",
+                    roomid: joinid,
+                })
+            }
+        } catch (error) {
+            console.log(error);
+        }
+
+    }
+    const handleCopy = (e) => {
         navigator.clipboard.writeText(roomid);
         alert("Meeting Id copied to clipboard");
     }
@@ -62,7 +75,7 @@ const DashBody = () => {
                             type="text"
                             placeholder="Room Code"
                             value={joinid}
-                            onChange={(e)=>setjoinid(e.target.value)}
+                            onChange={(e) => setjoinid(e.target.value)}
                             className="bg-white w-full p-3 border-2 border-[#1B4242] rounded-lg mb-4 focus:outline-none focus:ring-2 focus:ring-[#5C8374]"
                         />
                         <div className="flex justify-around">
@@ -107,7 +120,7 @@ const DashBody = () => {
                                 Cancel
                             </button>
                             <button
-                                className="bg-[#1B4242] hover:bg-[#5C8374] text-white font-semibold py-2 px-6 rounded-lg transition duration-300"onClick={handleCreateJoin}
+                                className="bg-[#1B4242] hover:bg-[#5C8374] text-white font-semibold py-2 px-6 rounded-lg transition duration-300" onClick={handleCreateJoin}
                             >
                                 Join
                             </button>

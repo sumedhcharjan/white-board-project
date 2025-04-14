@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 
-const Whiteboard = () => {
+const Whiteboard = ({isHost}) => {
     const canvasRef = useRef(null);
     const [isDrawing, setIsDrawing] = useState(false);
     const [coordinates, setCoordinates] = useState({ x: 0, y: 0 });
@@ -73,9 +73,9 @@ const Whiteboard = () => {
                 <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-full" onClick={() => setErasing(!erasing)}>
                     Eraser
                 </button>
-                <button className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-full" onClick={clearAll}>
+                {isHost ? <button className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-full" onClick={clearAll}>
                     Clear
-                </button>
+                </button>:''}
             </div>
             <canvas
                 ref={canvasRef}
@@ -85,11 +85,6 @@ const Whiteboard = () => {
                 onMouseLeave={stopDraw}
                 className={`w-full h-full border-2 border-gray-700 block ${erasing ? 'cursor-pointer' : 'cursor-crosshair'}`}
             ></canvas>
-            <div className='flex justify-center items-center p-3'>
-                <button className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-full" onClick={clearAll}>
-                    Leave Room!
-                </button>
-            </div>
         </div>
     );
 };
