@@ -32,7 +32,7 @@ const Participants = ({ participants, onClose,hostid, isHost }) => {
                     participants.map((p, index) => (
                         <div className='bg-[#5C8374] rounded-md flex justify-between'>
                             <li key={index} className="bg-[#5C8374] p-2 rounded-md">
-                                {p.name}{p.id===hostid?<p className='opacity-60 text-sm'>(Host)</p>:''}
+                                {p.id===user.sub?<span className='text-sm opacity-50'>*</span>:''} {p.name}{p.id===hostid?<p className='opacity-60 text-sm'>(Host)</p>:''}
                             </li>
                             {isHost&& p.id!==user.sub && hostid!==p.id ?<button onClick={()=>handleKick(p.id)} className='p-2 mr-3 cursor-pointer'>Kick</button>:''}
                         </div>

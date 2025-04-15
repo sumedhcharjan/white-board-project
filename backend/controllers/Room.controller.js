@@ -1,6 +1,6 @@
 import { nanoid } from "nanoid";
 import Room from "../models/Room.model.js";
-import { io} from '../lib/socket.js'
+import { io } from '../lib/socket.js'
 export const createRoom = async (req, res) => {
     try {
         const { user } = req.body;
@@ -15,6 +15,7 @@ export const createRoom = async (req, res) => {
             roomid,
             hostuser: user.sub,
             participants: [],
+            messages:[]
         });
 
         await room.save();
@@ -42,7 +43,6 @@ export const joinRoom = async (req, res) => {
         await room.save();
         io.to(Rid).emit('User Joined', { name: userName, userId });
         io.to(Rid).emit('participantsUpdate', room.participants)
-
         io.to(Rid).emit('joinroom', {
             name: userName,
             roomid: Rid,
@@ -54,7 +54,6 @@ export const joinRoom = async (req, res) => {
         res.status(500).json({ msg: "Server error", error });
     }
 };
-
 export const LeaveRoom = async (req, res) => {
     const { roomid, user } = req.body;
     try {
@@ -66,19 +65,27 @@ export const LeaveRoom = async (req, res) => {
         const userId = user.sub;
         const userName = user.name || user.nickname || 'Anonymous';
 
+        if (userId === room.hostuser) {
+            await Room.findOneAndDelete({ roomid });
+            io.to(roomid).emit('hostEndedMeeting', { message: 'Host ended the meeting' });
+            io.to(roomid).emit('participantsUpdate', []); // Empty array for consistency
+            return res.status(200).json({ msg: 'Host ended the meeting' });
+        }
+        const participant = room.participants.find(p => p.id === userId);
+        if (!participant) {
+            return res.status(404).json({ error: 'Participant not found' });
+        }
         room.participants = room.participants.filter(p => p.id !== userId);
         await room.save();
+
         io.to(roomid).emit('participantsUpdate', room.participants);
-
         io.to(roomid).emit('User Left', { name: userName, userId });
-
         res.json({ msg: 'Left the room successfully', participants: room.participants });
     } catch (error) {
-        console.error('Error leaving room:', error);
+        console.error('Error leaving room:', error.message, error.stack);
         res.status(500).json({ error: 'Server error' });
     }
 };
-
 
 export const SendRoomdetails = async (req, res) => {
     try {
@@ -115,5 +122,13 @@ export const Kickuser = async (req, res) => {
         console.error('Error kicking out participant:', error);
         res.status(500).json({ error: 'Server error' });
     }
+}
 
+export const replyRequest = async (params) => {
+    try {
+
+    } catch (error) {
+        console.error('Error kicking out participant:', error);
+        res.status(500).json({ error: 'Server error' });
+    }
 }

@@ -1,11 +1,13 @@
+import { useAuth0 } from '@auth0/auth0-react';
 import React, { useEffect, useRef, useState } from 'react';
 
-const Whiteboard = ({isHost}) => {
+const Whiteboard = ({ hostid }) => {
     const canvasRef = useRef(null);
+    const { user } = useAuth0();
     const [isDrawing, setIsDrawing] = useState(false);
     const [coordinates, setCoordinates] = useState({ x: 0, y: 0 });
     const [erasing, setErasing] = useState(false);
-
+    const [candraw, setcandraw] = useState(user?.sub === hostid)
     useEffect(() => {
         const canvas = canvasRef.current;
         const parent = canvas.parentElement;
@@ -35,6 +37,16 @@ const Whiteboard = ({isHost}) => {
         setCoordinates({ x: e.nativeEvent.offsetX, y: e.nativeEvent.offsetY });
     };
 
+    const handleRequest = async (params) => {
+        try {
+            const res = await axios.put('/room/requestp');
+            console.log(res);
+            if (res?.data?.permission === 'Granted') setcandraw(prev => !prev);
+        } catch (error) {
+            console.log(error);
+        }
+
+    }
     const draw = (e) => {
         if (!isDrawing) return;
         const canvas = canvasRef.current;
@@ -70,12 +82,15 @@ const Whiteboard = ({isHost}) => {
         <div className="p-3 w-full h-[350px]">
             <h2>Whiteboard</h2>
             <div className='flex items-center justify-between'>
-                <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-full" onClick={() => setErasing(!erasing)}>
+                {(hostid === user?.sub) ? <button className="bg-blue-500 mb-2 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-full" onClick={() => setErasing(!erasing)}>
                     Eraser
-                </button>
-                {isHost ? <button className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-full" onClick={clearAll}>
+                </button> : ''}
+                {(hostid === user?.sub) ? <button className="bg-red-500 mb-2 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-full" onClick={clearAll}>
                     Clear
-                </button>:''}
+                </button> : ''}
+                {(hostid !== user?.sub) ? <button className="bg-blue-500 mb-2 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-full" onClick={handleRequest}>
+                    Request Permission
+                </button> : ''}
             </div>
             <canvas
                 ref={canvasRef}

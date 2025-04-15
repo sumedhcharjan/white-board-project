@@ -8,31 +8,41 @@ import socket from '/src/lib/socket.js';
 import { toast } from 'react-hot-toast';
 
 const Roomdashboard = () => {
-    const navigate=useNavigate();
+    const navigate = useNavigate();
     const { roomid } = useParams();
     const { user } = useAuth0();
     const [roomDetails, setroomDetails] = useState(null)
     const [isHost, setisHost] = useState(false);
     useEffect(() => {
-        if(!user) return;
-        const getroomdetails=async (params) => {
+        if (!user) return;
+        const getroomdetails = async (params) => {
             try {
-                const res=await axios.get(`/room/roomdetails/${roomid}`)
-                setroomDetails(res.data)
-                console.log(res);
-                setisHost((user.sub===res.data.hostuser));
+                const res = await axios.get(`/room/roomdetails/${roomid}`)
+                setroomDetails(res.data);
+                setisHost((user.sub === res.data.hostuser));
             } catch (error) {
                 console.log("Error fetching room details", error);
             }
-            
-        }
-        if(user) getroomdetails();
 
-        socket.on('User Joined',(data)=>{
+        }
+        if (user) getroomdetails();
+
+        // Ensure socket is connected
+        if (!socket.connected) {
+            socket.connect();
+        }
+        // Join the room
+        socket.emit('joinroom', {
+            roomid,
+            userid: user.sub,
+            name: user.name || user.nickname || 'Anonymous',
+        });
+
+        socket.on('User Joined', (data) => {
             toast.success(`${data.name} have Joined the room!`);
 
         })
-        socket.on('User Left',(data)=>{
+        socket.on('User Left', (data) => {
             toast.success(`${data.name} have left the room!`);
         })
 
@@ -40,27 +50,35 @@ const Roomdashboard = () => {
             console.log('Participants updated:', uparticipants);
             setroomDetails((prev) => ({ ...prev, participants: uparticipants }));
         });
-        socket.on('Kickout',(data)=>{
+        socket.on('Kickout', (data) => {
             console.log(data.name);
-            if(data.userid!==user.sub) toast.error(`${data.name} was kicked from the room!`);
-            else if(data.userid===user.sub) navigate('/dashboard');
+            if (data.userid !== user.sub) toast.error(`${data.name} was kicked from the room!`);
+            else if (data.userid === user.sub) navigate('/dashboard');
         })
-      return () => {
-
-        socket.off('User Joined');
-        socket.off('User Left');
-        socket.off('participantsUpdate');
-        socket.off('Kickout')
-      };
-    }, [user,roomid]);
+        socket.on('hostEndedMeeting', ({ message }) => {
+            toast.error(message);
+            navigate('/dashboard');
+        });
+        return () => {
+            socket.off('User Joined');
+            socket.off('User Left');
+            socket.off('participantsUpdate');
+            socket.off('Kickout');
+            socket.off('hostEndedMeeting');
+            socket.emit('leaveroom', {
+                name: user.name || user.nickname || 'Anonymous',
+                roomid,
+            });
+        };
+    }, [user, roomid]);
     const handleLeave = async (params) => {
         try {
-            const res = await axios.put('/room/leave', { roomid,user });
+            const res = await axios.put('/room/leave', { roomid, user });
             console.log(res);
-            if (res?.data?.msg === 'Left the room successfully' || res?.data?.msg === 'Host ended the meeting!'){
-                socket.emit('leaveroom',{
-                    name:user.name || user.nickname || "Ananoymus",
-                    roomid:roomid,
+            if (res?.data?.msg === 'Left the room successfully' || res?.data?.msg === 'Host ended the meeting!') {
+                socket.emit('leaveroom', {
+                    name: user.name || user.nickname || "Ananoymus",
+                    roomid: roomid,
                 })
                 navigate('/dashboard');
             }
@@ -82,13 +100,14 @@ const Roomdashboard = () => {
                     </button>
                 </div>
                 <div className="flex flex-1 flex-col md:flex-row gap-4 p-4">
-                <OnlineControls isHost
-                hostid={roomDetails?.hostuser}
-                participants={roomDetails?.participants} />
+                    <OnlineControls isHost
+                        hostid={roomDetails?.hostuser}
+                        participants={roomDetails?.participants}
+                        messages={roomDetails?.messages}/>
 
                     {/* Whiteboard Section */}
                     <div className="flex-1 bg-white rounded-xl shadow-md p-2">
-                        <Whiteboard isHost />
+                        <Whiteboard hostid={roomDetails?.hostuser} />
                     </div>
 
                     {/* Right Sidebar */}
@@ -104,7 +123,7 @@ const Roomdashboard = () => {
                         {/* Chat / Guess History */}
                         <div className="bg-[#1B4242] p-4 h-1/2 rounded-lg flex-1 overflow-y-auto">
                             <h3 className="font-semibold mb-2">extra options</h3>
- 
+
                         </div>
                     </div>
                 </div>
