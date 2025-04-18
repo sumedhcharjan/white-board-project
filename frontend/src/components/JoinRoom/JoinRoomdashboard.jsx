@@ -6,7 +6,7 @@ import Whiteboard from "../Canvas/JoinWhiteboard"
 import OnlineControls from './OnlineControls';
 import socket from '/src/lib/socket.js';
 import { toast } from 'react-hot-toast';
-
+import DrawingOptions from '../Canvas/DrawingOptions';
 const Roomdashboard = () => {
     const navigate = useNavigate();
     const { roomid } = useParams();
@@ -14,13 +14,15 @@ const Roomdashboard = () => {
     const [roomDetails, setroomDetails] = useState(null)
     const [isHost, setisHost] = useState(false);
     const [candraw, setcandraw] = useState(false);
+    const [selectedColor, setSelectedColor] = useState("#000000");
+    const [selectedTool, setSelectedTool] = useState("pencil");
+    const [elements, setElements] = useState({});
     useEffect(() => {
         const participantList = Array.isArray(roomDetails?.participants)
             ? roomDetails?.participants
             : [];
         const participant = participantList.find(x => x.id === user?.sub);
         setcandraw(participant?.candraw ?? false);
-
     }, [roomDetails, user]);
     useEffect(() => {
         if (!user) return;
@@ -104,6 +106,29 @@ const Roomdashboard = () => {
         };
     }, [user, roomid]);
 
+    useEffect(() => {
+        const fetchDrawingData = async () => {
+            try {
+                console.log("hello hello", roomid);
+                const response = await axios.get("/room/getelements", { params: { roomid } });
+                const data = response.data?.drawingData;
+
+                if (Array.isArray(data)) {
+                    setElements(data);
+                } else {
+                    console.warn('Received invalid drawing data:', data);
+                    setElements([]);
+                }
+
+            } catch (error) {
+                console.error('Error fetching drawing data:', error);
+                setElements([]);  // fallback to empty
+            }
+        };
+
+        fetchDrawingData();
+    }, [roomid]);
+
     const helper = ({ userid, granted }) => {
         console.log(roomid, userid);
         socket.emit('grantDrawP', { hostid: roomDetails?.hostuser, userid, roomid, granted });
@@ -126,7 +151,7 @@ const Roomdashboard = () => {
                     </button>
                     <button
                         onClick={() => {
-                            helper({userid,granted: false });
+                            helper({ userid, granted: false });
                             toast.dismiss(t.id);
 
                         }}
@@ -177,19 +202,17 @@ const Roomdashboard = () => {
 
                     {/* Whiteboard Section */}
                     <div className="flex-1 bg-white rounded-xl shadow-md p-2">
-                        <Whiteboard candraw={candraw} />
+                        <Whiteboard candraw={candraw} elements={elements} />
                     </div>
 
                     {/* Right Sidebar */}
                     <div className="w-full md:w-[350px] flex flex-col gap-4">
-
-
-                        {/* Game Options - Extendable */}
-                        <div className="bg-[#1B4242] p-4 h-1/2 rounded-lg">
-                            <h3 className="font-semibold mb-2">Options</h3>
-                            drawing items
-                        </div>
-
+                        <DrawingOptions
+                            setSelectedColor={setSelectedColor}
+                            selectedColor={selectedColor}
+                            setSelectedTool={setSelectedTool}
+                            selectedTool={selectedTool}
+                        />
                         {/* Chat / Guess History */}
                         <div className="bg-[#1B4242] p-4 h-1/2 rounded-lg flex-1 overflow-y-auto">
                             <h3 className="font-semibold mb-2">extra options</h3>

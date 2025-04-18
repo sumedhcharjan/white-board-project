@@ -1,6 +1,7 @@
 import { nanoid } from "nanoid";
 import Room from "../models/Room.model.js";
 import { io } from '../lib/socket.js'
+import { createRoomDrawing } from "../controllers/drawingcontroller.js"
 export const createRoom = async (req, res) => {
     try {
         const { user } = req.body;
@@ -19,7 +20,7 @@ export const createRoom = async (req, res) => {
         });
 
         await room.save();
-
+        await createRoomDrawing({roomid});
         res.status(200).json({ roomid });
     } catch (error) {
         console.error("Create room error:", error);

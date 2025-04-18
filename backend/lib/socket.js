@@ -2,6 +2,7 @@ import express from 'express'
 import { Server } from 'socket.io'
 import http from 'http'
 import Room from '../models/Room.model.js';
+import RoomDrawing from '../models/drawingData.js';
 const app = express();
 const server = http.createServer(app);
 const io = new Server(server, {
@@ -78,9 +79,22 @@ io.on('connection', (socket) => {
             console.log('After participantUpdate');
             io.to(roomid).emit('PermissionResult', ({ userid: p.id, granted }));
         } catch (error) {
-        console.error("Request error:", error);
-    }
+            console.error("Request error:", error);
+        }
 
-})
+    })
+
+    socket.on('newline', async ({ line, roomid }) => {
+
+
+        await RoomDrawing.updateOne(
+            { roomid: `${roomid}` },
+            { $push: { drawingData: line } },
+            { upsert: true }
+        );
+        socket.broadcast.emit('drawline', line);
+    });
+
+
 })
 export { io, server, app };

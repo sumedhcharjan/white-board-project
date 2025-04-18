@@ -3,25 +3,33 @@ import React, { useEffect, useRef, useState } from 'react';
 import socket from '/src/lib/socket.js';
 import { useParams } from 'react-router-dom';
 import toast from 'react-hot-toast';
+import axios from '/src/lib/axios.js';
 
-const Whiteboard = ({ candraw }) => {
+const Whiteboard = ({ selectedColor, selectedTool, candraw, elements }) => {
     const canvasRef = useRef(null);
-    const {roomid}=useParams();
+    const { roomid } = useParams();
     const { user } = useAuth0();
     const [isDrawing, setIsDrawing] = useState(false);
     const [coordinates, setCoordinates] = useState({ x: 0, y: 0 });
     const [erasing, setErasing] = useState(false);
-    // const [candraw, setcandraw] = useState(user?.sub === hostid);
+    const [elementsArray, setElementsArray] = useState([]);
+
+    useEffect(() => {
+        setElementsArray(elements);
+    }, [elements]);
+
     useEffect(() => {
         const canvas = canvasRef.current;
         const parent = canvas.parentElement;
 
-        // Function to update canvas size
+        // Function to update canvas size and redraw
         const updateCanvasSize = () => {
             const { width, height } = parent.getBoundingClientRect();
             canvas.width = width;
             canvas.height = height;
+            redrawAll(elementsArray); // Redraw lines after resizing
         };
+
         // Initialize canvas size
         updateCanvasSize();
 
@@ -33,38 +41,79 @@ const Whiteboard = ({ candraw }) => {
         return () => {
             resizeObserver.disconnect();
         };
+    }, [elementsArray]); // Depend on elementsArray to ensure redraws when it changes
+
+    useEffect(() => {
+        const handleDrawLine = (line) => {
+            setElementsArray(prev => [...prev, line]);
+        };
+
+        socket.on('drawline', handleDrawLine);
+
+        return () => {
+            socket.off('drawline', handleDrawLine);
+        };
     }, []);
 
-    // console.log(userid,hostid);
+    useEffect(() => {
+        redrawAll(elementsArray);
+    }, [elementsArray]);
+
+    const redrawAll = (lines) => {
+        if (!Array.isArray(lines)) {
+            console.warn('Invalid lines:', lines);
+            return;
+        }
+
+        const canvas = canvasRef.current;
+        const ctx = canvas.getContext('2d');
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        lines.forEach(line => {
+            if (!line || !line.points || line.points.length < 2) {
+                console.warn('Skipped invalid line:', line);
+                return;
+            }
+            ctx.beginPath();
+            ctx.moveTo(line.points[0].x, line.points[0].y);
+            ctx.lineTo(line.points[1].x, line.points[1].y);
+            ctx.strokeStyle = line.color;
+            ctx.lineWidth = line.width;
+            ctx.stroke();
+        });
+    };
+
     const startDraw = (e) => {
         setIsDrawing(true);
         setCoordinates({ x: e.nativeEvent.offsetX, y: e.nativeEvent.offsetY });
     };
 
-    const handleRequest = async (params) => {
+    const handleRequest = async () => {
         try {
-            socket.emit('handleReq',{roomid,userid:user?.sub,name:user.name})
-            console.log('Send Req to HOst!');
+            socket.emit('handleReq', { roomid, userid: user?.sub, name: user.name });
+            console.log('Sent request to host!');
+            toast.success('Draw permission requested!', { id: `request-${user.sub}` });
         } catch (error) {
-            console.log(error);
+            console.error('Error requesting permission:', error);
+            toast.error('Failed to request permission');
         }
+    };
 
-    }
     const draw = (e) => {
-        if(candraw==false){ 
-            return
-        };
         if (!isDrawing) return;
-        const canvas = canvasRef.current;
-        const ctx = canvas.getContext('2d');
-        ctx.beginPath();
-        ctx.moveTo(coordinates.x, coordinates.y);
-        ctx.lineTo(e.nativeEvent.offsetX, e.nativeEvent.offsetY);
-        ctx.strokeStyle = '#000';
-        ctx.lineWidth = 4;
-        ctx.stroke();
 
+        const newLine = {
+            color: selectedColor || '#000',
+            width: 4,
+            points: [
+                { x: coordinates.x, y: coordinates.y },
+                { x: e.nativeEvent.offsetX, y: e.nativeEvent.offsetY }
+            ]
+        };
+        setElementsArray(prev => [...prev, newLine]);
         setCoordinates({ x: e.nativeEvent.offsetX, y: e.nativeEvent.offsetY });
+
+        socket.emit('newline', { roomid, line: newLine });
     };
 
     const erase = (e) => {
@@ -74,10 +123,18 @@ const Whiteboard = ({ candraw }) => {
         ctx.clearRect(e.nativeEvent.offsetX - 10, e.nativeEvent.offsetY - 10, 20, 20);
     };
 
-    const clearAll = () => {
-        const canvas = canvasRef.current;
-        const ctx = canvas.getContext('2d');
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
+    const clearAll = async () => {
+        try {
+            const response = await axios.delete(`/room/clearelements`, {
+                params: { roomid }
+            });
+            console.log('Cleared successfully:', response.data);
+            setElementsArray([]); // Clear local state
+            redrawAll([]); // Clear canvas
+        } catch (error) {
+            console.error('Error clearing elements:', error);
+            toast.error('Failed to clear whiteboard');
+        }
     };
 
     const stopDraw = () => {
@@ -87,23 +144,38 @@ const Whiteboard = ({ candraw }) => {
     return (
         <div className="p-3 w-full h-[350px]">
             <h2>Whiteboard</h2>
-            <div className='flex items-center justify-between'>
-                {candraw ? <button className="bg-blue-500 mb-2 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-full" onClick={() => setErasing(!erasing)}>
-                    Eraser
-                </button> : ''}
-                {candraw ? <button className="bg-red-500 mb-2 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-full" onClick={clearAll}>
-                    Clear
-                </button> : ''}
-                {!candraw ? <button className="bg-blue-500 mb-2 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-full" onClick={handleRequest}>
-                    Request Permission
-                </button> : ''}
+            <div className="flex items-center justify-between">
+                {candraw ? (
+                    <button
+                        className="bg-blue-500 mb-2 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-full"
+                        onClick={() => setErasing(!erasing)}
+                    >
+                        {erasing ? 'Draw' : 'Eraser'}
+                    </button>
+                ) : null}
+                {candraw ? (
+                    <button
+                        className="bg-red-500 mb-2 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-full"
+                        onClick={clearAll}
+                    >
+                        Clear
+                    </button>
+                ) : null}
+                {!candraw ? (
+                    <button
+                        className="bg-blue-500 mb-2 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-full"
+                        onClick={handleRequest}
+                    >
+                        Request Permission
+                    </button>
+                ) : null}
             </div>
             <canvas
                 ref={canvasRef}
-                onMouseDown={startDraw}
-                onMouseMove={erasing ? erase : draw}
-                onMouseUp={stopDraw}
-                onMouseLeave={stopDraw}
+                onMouseDown={candraw ? startDraw : undefined}
+                onMouseMove={candraw ? (erasing ? erase : draw) : undefined}
+                onMouseUp={candraw ? stopDraw : undefined}
+                onMouseLeave={candraw ? stopDraw : undefined}
                 className={`w-full h-full border-2 border-gray-700 block ${erasing ? 'cursor-pointer' : 'cursor-crosshair'}`}
             ></canvas>
         </div>
