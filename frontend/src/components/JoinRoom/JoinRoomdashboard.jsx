@@ -13,13 +13,27 @@ const Roomdashboard = () => {
     const { user } = useAuth0();
     const [roomDetails, setroomDetails] = useState(null)
     const [isHost, setisHost] = useState(false);
+    const [candraw, setcandraw] = useState(false);
+    useEffect(() => {
+        const participantList = Array.isArray(roomDetails?.participants)
+            ? roomDetails?.participants
+            : [];
+        const participant = participantList.find(x => x.id === user?.sub);
+        setcandraw(participant?.candraw ?? false);
+
+    }, [roomDetails, user]);
     useEffect(() => {
         if (!user) return;
+        setisHost((user.sub === roomDetails?.hostuser));
+        const p = roomDetails?.participants?.find(x => x.id === user.sub);
+        setcandraw(p?.candraw);
         const getroomdetails = async (params) => {
             try {
                 const res = await axios.get(`/room/roomdetails/${roomid}`)
                 setroomDetails(res.data);
                 setisHost((user.sub === res.data.hostuser));
+                const p = res.data.participants.find(x => x.id === user.sub);
+                setcandraw(p.candraw);
             } catch (error) {
                 console.log("Error fetching room details", error);
             }
@@ -59,6 +73,24 @@ const Roomdashboard = () => {
             toast.error(message);
             navigate('/dashboard');
         });
+        socket.on('AskPermission', ({ name, hostid, userid }) => {
+            if (user.sub === hostid) {
+                console.log('Host');
+                console.log(userid);
+                showPermissionToast({ name, hostid, userid, roomid });
+            } else {
+                console.log('Not Host');
+            }
+        })
+        socket.on('PermissionResult', ({ userid, granted }) => {
+            console.log(user?.sub, userid);
+            if (user?.sub === userid) {
+                if (granted) toast.success('Host Has Given You permission to Draw!');
+                else toast.error('Host Denied permission!')
+            }
+            console.log('Done!');
+
+        })
         return () => {
             socket.off('User Joined');
             socket.off('User Left');
@@ -71,6 +103,44 @@ const Roomdashboard = () => {
             });
         };
     }, [user, roomid]);
+
+    const helper = ({ userid, granted }) => {
+        console.log(roomid, userid);
+        socket.emit('grantDrawP', { hostid: roomDetails?.hostuser, userid, roomid, granted });
+        console.log('Helper!');
+    }
+
+    const showPermissionToast = ({ name, userid, hostid, roomid }) => {
+        toast.custom((t) => (
+            <div className="bg-white shadow-md border p-4 rounded-md w-[300px]">
+                <p className="font-semibold mb-2">Drawing permission requested by {name}</p>
+                <div className="flex justify-end gap-2">
+                    <button
+                        onClick={() => {
+                            helper({ userid, granted: true });
+                            toast.dismiss(t.id);
+                        }}
+                        className="bg-green-500 text-white px-3 py-1 rounded"
+                    >
+                        Grant
+                    </button>
+                    <button
+                        onClick={() => {
+                            helper({userid,granted: false });
+                            toast.dismiss(t.id);
+
+                        }}
+                        className="bg-red-500 text-white px-3 py-1 rounded"
+                    >
+                        Deny
+                    </button>
+                </div>
+            </div>
+        ), {
+            id: `permission-${userid}`,
+            duration: 10000
+        });
+    };
     const handleLeave = async (params) => {
         try {
             const res = await axios.put('/room/leave', { roomid, user });
@@ -103,11 +173,11 @@ const Roomdashboard = () => {
                     <OnlineControls isHost
                         hostid={roomDetails?.hostuser}
                         participants={roomDetails?.participants}
-                        messages={roomDetails?.messages}/>
+                        messages={roomDetails?.messages} />
 
                     {/* Whiteboard Section */}
                     <div className="flex-1 bg-white rounded-xl shadow-md p-2">
-                        <Whiteboard hostid={roomDetails?.hostuser} />
+                        <Whiteboard candraw={candraw} />
                     </div>
 
                     {/* Right Sidebar */}

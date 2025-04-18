@@ -14,6 +14,7 @@ const RoomSchema = new mongoose.Schema({
     {
       id: { type: String, required: true },
       name: { type: String, required: true },
+      candraw:{type:Boolean,required:true,default:false}
     }
   ],
   messages: [

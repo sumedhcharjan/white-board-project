@@ -14,7 +14,7 @@ const Chats = ({ msgs, setshowchat }) => {
             chatRef.current.scrollTop = chatRef.current.scrollHeight;
         }
     }, [msgs]);
-    console.log(msgs);
+    // console.log(msgs);
     const handleSendMessage = (e) => {
         e.preventDefault();
         if (!chatinp.trim()) return;

@@ -38,8 +38,9 @@ export const joinRoom = async (req, res) => {
 
         const isAlreadyParticipant = room.participants.some(p => p.id === userId);
         if (isAlreadyParticipant) return res.status(400).json({ msg: 'Already in room' });
-
-        room.participants.push({ id: userId, name: userName });
+        const cd=(userId===room.hostuser);
+        console.log(cd);
+        room.participants.push({ id: userId, name: userName,candraw:cd});
         await room.save();
         io.to(Rid).emit('User Joined', { name: userName, userId });
         io.to(Rid).emit('participantsUpdate', room.participants)

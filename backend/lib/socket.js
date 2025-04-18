@@ -43,12 +43,44 @@ io.on('connection', (socket) => {
             await room.save();
             console.log('saved Room Success!');
             // console.log(room.messages);
-            const umessages=room.messages;
+            const umessages = room.messages;
             // console.log(umessages);
             io.to(roomid).emit('receiveChat', umessages);
         } catch (error) {
             console.error("saving messages error:", error);
         }
     })
+    socket.on('handleReq', async ({ roomid, userid, name }) => {
+        try {
+            console.log(2, userid, roomid);
+            const room = await Room.findOne({ roomid });
+            if (!room) console.log("Room Not Found!");
+            const p = room.participants.find(x => x.id === userid);
+            console.log(p);
+            if (!p) console.log("Participant Not Found!");
+            io.to(roomid).emit('AskPermission', ({ name, hostid: room.hostuser, userid }));
+        } catch (error) {
+            console.error("Request error:", error);
+        }
+    })
+    socket.on('grantDrawP', async ({ hostid, userid, granted, roomid }) => {
+        try {
+            console.log(5, granted, roomid, userid, hostid);
+            const room = await Room.findOne({ roomid });
+            if (!room) console.log("Room Not Found!");
+            const p = room.participants.find(x => x.id === userid);
+            console.log(p);
+            if (!p) console.log("Participant Not Found!");
+            p.candraw = granted;
+            await room.save();
+            console.log(room.participants);
+            io.to(roomid).emit('participantsUpdate', room.participants);
+            console.log('After participantUpdate');
+            io.to(roomid).emit('PermissionResult', ({ userid: p.id, granted }));
+        } catch (error) {
+        console.error("Request error:", error);
+    }
+
+})
 })
 export { io, server, app };
