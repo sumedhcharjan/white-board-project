@@ -194,7 +194,7 @@ const Roomdashboard = () => {
                         Leave Room
                     </button>
                 </div>
-                <div className="flex flex-1 flex-col md:flex-row gap-4 p-4">
+                <div className="flex flex-col md:flex-row gap-4 p-4">
                     <OnlineControls isHost
                         hostid={roomDetails?.hostuser}
                         participants={roomDetails?.participants}
@@ -206,7 +206,7 @@ const Roomdashboard = () => {
                     </div>
 
                     {/* Right Sidebar */}
-                    <div className="w-full md:w-[350px] flex flex-col gap-4">
+                    <div className="w-full h-fit md:w-[350px] flex flex-col gap-4">
                         <DrawingOptions
                             setSelectedColor={setSelectedColor}
                             selectedColor={selectedColor}
@@ -216,7 +216,6 @@ const Roomdashboard = () => {
                         {/* Chat / Guess History */}
                         <div className="bg-[#1B4242] p-4 h-1/2 rounded-lg flex-1 overflow-y-auto">
                             <h3 className="font-semibold mb-2">extra options</h3>
-
                         </div>
                     </div>
                 </div>
