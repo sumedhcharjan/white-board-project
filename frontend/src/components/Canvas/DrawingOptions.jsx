@@ -1,7 +1,7 @@
 import { FaPencilAlt, FaSquare, FaCircle, FaMinus, FaEllipsisH } from 'react-icons/fa';
 import { useState } from 'react';
 
-const DrawingOptions = ({selectedColor,selectedTool,setSelectedColor,setSelectedTool}) => {
+const DrawingOptions = ({ selectedColor, selectedTool, setSelectedColor, setSelectedTool, width, setWidth }) => {
 
     const handleToolChange = (tool) => {
         setSelectedTool(`${tool}`);
@@ -47,7 +47,30 @@ const DrawingOptions = ({selectedColor,selectedTool,setSelectedColor,setSelected
                         style={{ backgroundColor: selectedColor }}
                     />
                 </label>
+                
+                <input
+                    type="range"
+                    min="1"
+                    max="30"
+                    value={width}
+                    onChange={(e) => setWidth(Number(e.target.value))}
+                    className="col-span-3 px-4 self-center w-full h-2 bg-[#5C8374] rounded-lg appearance-none cursor-pointer"
+                />
+
+                <div
+                    className="w-full aspect-square flex items-center justify-center rounded-lg hover:ring-2 ring-offset-2 ring-black bg-white"
+                >
+                    <div
+                        className="rounded-full bg-black"
+                        style={{
+                            width: `${width}px`,
+                            height: `${width}px`,
+                            backgroundColor: selectedColor
+                        }}
+                    />
+                </div>
             </div>
+
 
 
         </div>

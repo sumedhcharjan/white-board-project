@@ -5,7 +5,7 @@ import { useParams } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import axios from '/src/lib/axios.js';
 
-const Whiteboard = ({ selectedColor, selectedTool, candraw, elements }) => {
+const Whiteboard = ({ selectedColor, selectedTool, candraw, elements ,width }) => {
     const canvasRef = useRef(null);
     const { roomid } = useParams();
     const { user } = useAuth0();
@@ -26,7 +26,7 @@ const Whiteboard = ({ selectedColor, selectedTool, candraw, elements }) => {
         const updateCanvasSize = () => {
             const { width, height } = parent.getBoundingClientRect();
             canvas.width = width;
-            canvas.height = height;
+            canvas.height = height*0.9;
             redrawAll(elementsArray); // Redraw lines after resizing
         };
 
@@ -44,14 +44,14 @@ const Whiteboard = ({ selectedColor, selectedTool, candraw, elements }) => {
     }, [elementsArray]); // Depend on elementsArray to ensure redraws when it changes
 
     useEffect(() => {
-        const handleDrawLine = (line) => {
+        const handleDrawElement = (line) => {
             setElementsArray(prev => [...prev, line]);
         };
 
-        socket.on('drawline', handleDrawLine);
+        socket.on('drawelelement', handleDrawElement);
 
         return () => {
-            socket.off('drawline', handleDrawLine);
+            socket.off('drawelelement', handleDrawLine);
         };
     }, []);
 
@@ -102,18 +102,19 @@ const Whiteboard = ({ selectedColor, selectedTool, candraw, elements }) => {
     const draw = (e) => {
         if (!isDrawing) return;
 
-        const newLine = {
+        const newElement = {
+            type: selectedTool,
             color: selectedColor || '#000',
-            width: 4,
+            width: width ,
             points: [
                 { x: coordinates.x, y: coordinates.y },
                 { x: e.nativeEvent.offsetX, y: e.nativeEvent.offsetY }
             ]
         };
-        setElementsArray(prev => [...prev, newLine]);
+        setElementsArray(prev => [...prev, newElement]);
         setCoordinates({ x: e.nativeEvent.offsetX, y: e.nativeEvent.offsetY });
 
-        socket.emit('newline', { roomid, line: newLine });
+        socket.emit('newElement', { roomid, element: newElement });
     };
 
     const erase = (e) => {
@@ -141,9 +142,10 @@ const Whiteboard = ({ selectedColor, selectedTool, candraw, elements }) => {
         setIsDrawing(false);
     };
 
+    console.log()
+
     return (
-        <div className="p-3 w-full h-[350px]">
-            <h2>Whiteboard</h2>
+        <div className="p-3 w-full h-170">
             <div className="flex items-center justify-between">
                 {candraw ? (
                     <button

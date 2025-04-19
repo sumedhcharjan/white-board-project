@@ -15,6 +15,7 @@ const Roomdashboard = () => {
     const [isHost, setisHost] = useState(false);
     const [candraw, setcandraw] = useState(false);
     const [selectedColor, setSelectedColor] = useState("#000000");
+    const [width , setWidth] = useState("4")
     const [selectedTool, setSelectedTool] = useState("pencil");
     const [elements, setElements] = useState({});
     useEffect(() => {
@@ -202,7 +203,13 @@ const Roomdashboard = () => {
 
                     {/* Whiteboard Section */}
                     <div className="flex-1 bg-white rounded-xl shadow-md p-2">
-                        <Whiteboard candraw={candraw} elements={elements} />
+                        <Whiteboard 
+                        candraw={candraw} 
+                        elements={elements}
+                        selectedColor={selectedColor}
+                        width={width}
+                        selectedTool={selectedTool}
+                        />
                     </div>
 
                     {/* Right Sidebar */}
@@ -212,6 +219,8 @@ const Roomdashboard = () => {
                             selectedColor={selectedColor}
                             setSelectedTool={setSelectedTool}
                             selectedTool={selectedTool}
+                            width={width}
+                            setWidth={setWidth}
                         />
                         {/* Chat / Guess History */}
                         <div className="bg-[#1B4242] p-4 h-1/2 rounded-lg flex-1 overflow-y-auto">

@@ -84,15 +84,15 @@ io.on('connection', (socket) => {
 
     })
 
-    socket.on('newline', async ({ line, roomid }) => {
+    socket.on('newElement', async ({ element, roomid }) => {
 
 
         await RoomDrawing.updateOne(
             { roomid: `${roomid}` },
-            { $push: { drawingData: line } },
+            { $push: { drawingData: element } },
             { upsert: true }
         );
-        socket.broadcast.emit('drawline', line);
+        socket.broadcast.emit('drawelement', element);
     });
 
 
