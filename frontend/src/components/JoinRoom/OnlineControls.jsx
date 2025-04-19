@@ -28,7 +28,7 @@ const OnlineControls = ({ isHost, hostid, participants,messages }) => {
 
     return (
         <>
-            <div className="bg-[#1B4242] p-4 flex justify-between w-full h-fit rounded-lg  overflow-y-auto">
+            <div className="bg-[#1B4242] p-4 flex flex-col items-center justify-between w-35 h-fit rounded-lg overflow-y-auto">
                 <button onClick={() => setshowchat(prev => !prev)} className="font-semibold mb-2">Chat</button>
                 <h3 className="font-semibold mb-2">mic</h3>
                 <button onClick={() => setshowparticipants(prev => !prev)} className="font-semibold mb-2">Participants</button>
