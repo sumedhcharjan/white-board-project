@@ -194,7 +194,7 @@ const Roomdashboard = () => {
                         Leave Room
                     </button>
                 </div>
-                <div className="flex flex-1 flex-col md:flex-row gap-4 p-4">
+                <div className="flex flex-1  flex-col md:flex-row gap-4 p-4">
                     <OnlineControls isHost
                         hostid={roomDetails?.hostuser}
                         participants={roomDetails?.participants}
