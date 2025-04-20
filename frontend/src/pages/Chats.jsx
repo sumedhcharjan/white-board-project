@@ -28,7 +28,7 @@ const Chats = ({ msgs, setshowchat }) => {
     };
 
     return (
-        <div className="fixed right-0 top-0 h-full w-80 bg-gradient-to-b from-[#1B4242] to-[#092635] text-[#F5F6F5] shadow-2xl z-50 p-4 flex flex-col transition-all duration-300">
+        <div className="fixed left-0 top-0 h-full w-80 bg-gradient-to-b from-[#1B4242] to-[#092635] text-[#F5F6F5] shadow-2xl z-50 p-4 flex flex-col transition-all duration-300">
             <div className="flex justify-between items-center mb-4">
                 <h2 className="text-xl font-bold text-[#9EC8B9] tracking-wide">Room Chat</h2>
                 <button

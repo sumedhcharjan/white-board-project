@@ -17,6 +17,7 @@ const Roomdashboard = () => {
     const [selectedColor, setSelectedColor] = useState("#000000");
     const [selectedTool, setSelectedTool] = useState("pencil");
     const [elements, setElements] = useState({});
+    const [width, setWidth] = useState("4");
     useEffect(() => {
         const participantList = Array.isArray(roomDetails?.participants)
             ? roomDetails?.participants
@@ -194,15 +195,25 @@ const Roomdashboard = () => {
                         Leave Room
                     </button>
                 </div>
-                <div className="flex flex-col md:flex-row gap-4 p-4">
-                    <OnlineControls isHost
-                        hostid={roomDetails?.hostuser}
-                        participants={roomDetails?.participants}
-                        messages={roomDetails?.messages} />
+                <div className="flex flex-col md:flex-col lg:flex-row gap-4 p-4">
+                    <div className="flex flex-col flex-shrink-0 w-full md:w-auto">
+                        <OnlineControls
+                            isHost
+                            hostid={roomDetails?.hostuser}
+                            participants={roomDetails?.participants}
+                            messages={roomDetails?.messages}
+                        />
+                    </div>
 
                     {/* Whiteboard Section */}
                     <div className="flex-1 bg-white rounded-xl shadow-md p-2">
-                        <Whiteboard candraw={candraw} elements={elements} />
+                        <Whiteboard
+                            candraw={candraw}
+                            elements={elements}
+                            selectedColor={selectedColor}
+                            width={width}
+                            selectedTool={selectedTool}
+                        />
                     </div>
 
                     {/* Right Sidebar */}
@@ -212,6 +223,8 @@ const Roomdashboard = () => {
                             selectedColor={selectedColor}
                             setSelectedTool={setSelectedTool}
                             selectedTool={selectedTool}
+                            width={width}
+                            setWidth={setWidth}
                         />
                         {/* Chat / Guess History */}
                         <div className="bg-[#1B4242] p-4 h-1/2 rounded-lg flex-1 overflow-y-auto">

@@ -4,6 +4,7 @@ import {
     getElements,
     clearElements
 } from '../controllers/drawingcontroller.js'
+import { saveDrawing } from '../controllers/Users.controller.js';
 const router = express.Router();
 
 router.post('/create', createRoom);
@@ -14,4 +15,5 @@ router.put('/kickout', Kickuser);
 router.put('/request/p', replyRequest);
 router.get("/getelements" , getElements)
 router.delete("/clearelements",clearElements)
+router.post('/savedrawing',saveDrawing);
 export default router;

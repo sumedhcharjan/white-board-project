@@ -26,7 +26,7 @@ const Participants = ({ participants, onClose,hostid, isHost }) => {
         socket.emit('grantDrawP',{userid,roomid,hostid,granted:false});  
     }
     return (
-        <div className="fixed right-0 top-0 h-full w-64 bg-[#1B4242] text-white shadow-lg z-50 p-4">
+        <div className="fixed left-0 top-0 h-full w-70 bg-[#1B4242] text-white shadow-lg z-50 p-4">
             <div className="flex justify-between items-center mb-4">
                 <h2 className="text-lg font-bold">Participants</h2>
                 <button onClick={onClose} className="text-red-400 hover:text-red-600 text-xl font-bold">×</button>

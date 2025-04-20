@@ -5,7 +5,7 @@ import { useParams } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import axios from '/src/lib/axios.js';
 
-const Whiteboard = ({ selectedColor, selectedTool, candraw, elements }) => {
+const Whiteboard = ({ selectedColor, selectedTool, candraw, elements, width }) => {
     const canvasRef = useRef(null);
     const { roomid } = useParams();
     const { user } = useAuth0();
@@ -26,7 +26,7 @@ const Whiteboard = ({ selectedColor, selectedTool, candraw, elements }) => {
         const updateCanvasSize = () => {
             const { width, height } = parent.getBoundingClientRect();
             canvas.width = width;
-            canvas.height = height;
+            canvas.height = height * 0.9;
             redrawAll(elementsArray); // Redraw lines after resizing
         };
 
@@ -44,14 +44,14 @@ const Whiteboard = ({ selectedColor, selectedTool, candraw, elements }) => {
     }, [elementsArray]); // Depend on elementsArray to ensure redraws when it changes
 
     useEffect(() => {
-        const handleDrawLine = (line) => {
+        const handleDrawElement = (line) => {
             setElementsArray(prev => [...prev, line]);
         };
 
-        socket.on('drawline', handleDrawLine);
+        socket.on('drawElement', handleDrawElement);
 
         return () => {
-            socket.off('drawline', handleDrawLine);
+            socket.off('drawElement', handleDrawElement);
         };
     }, []);
 
@@ -66,7 +66,7 @@ const Whiteboard = ({ selectedColor, selectedTool, candraw, elements }) => {
         }
 
         const canvas = canvasRef.current;
-        const ctx = canvas.getContext('2d');
+        const ctx = canvas?.getContext('2d');
         ctx.clearRect(0, 0, canvas.width, canvas.height);
 
         lines.forEach(line => {
@@ -102,18 +102,19 @@ const Whiteboard = ({ selectedColor, selectedTool, candraw, elements }) => {
     const draw = (e) => {
         if (!isDrawing) return;
 
-        const newLine = {
+        const newElement = {
+            type: selectedTool,
             color: selectedColor || '#000',
-            width: 4,
+            width: width,
             points: [
                 { x: coordinates.x, y: coordinates.y },
                 { x: e.nativeEvent.offsetX, y: e.nativeEvent.offsetY }
             ]
         };
-        setElementsArray(prev => [...prev, newLine]);
+        setElementsArray(prev => [...prev, newElement]);
         setCoordinates({ x: e.nativeEvent.offsetX, y: e.nativeEvent.offsetY });
 
-        socket.emit('newline', { roomid, line: newLine });
+        socket.emit('newElement', { roomid, element: newElement });
     };
 
     const erase = (e) => {
@@ -142,16 +143,13 @@ const Whiteboard = ({ selectedColor, selectedTool, candraw, elements }) => {
     };
 
     return (
-        <div className="p-3 w-full h-[350px]">
-            <h2>Whiteboard</h2>
+        <div className="p-3 w-full h-170">
             <div className="flex items-center justify-between">
                 {candraw ? (
-                    <button
-                        className="bg-blue-500 mb-2 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-full"
-                        onClick={() => setErasing(!erasing)}
-                    >
-                        {erasing ? 'Draw' : 'Eraser'}
-                    </button>
+                    <div className='flex w-17 justify-between align-middle p-2'>
+                        <button className='p-1 mr-1 '>↶</button>
+                        <button className='p-1 ml-1'>↷</button>
+                    </div>
                 ) : null}
                 {candraw ? (
                     <button
@@ -171,6 +169,7 @@ const Whiteboard = ({ selectedColor, selectedTool, candraw, elements }) => {
                 ) : null}
             </div>
             <canvas
+                id="Whiteboard"
                 ref={canvasRef}
                 onMouseDown={candraw ? startDraw : undefined}
                 onMouseMove={candraw ? (erasing ? erase : draw) : undefined}
