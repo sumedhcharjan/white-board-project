@@ -49,6 +49,11 @@ const Whiteboard = ({ selectedColor, selectedTool, candraw, elements, width }) =
         };
 
         socket.on('drawElement', handleDrawElement);
+        socket.on('clearCanvas', () => {
+            console.log('afsdaf');
+            setElementsArray([]); // Clear local state
+            redrawAll([]); // Clear canvas
+        })
 
         return () => {
             socket.off('drawElement', handleDrawElement);

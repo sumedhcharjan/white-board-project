@@ -3,6 +3,7 @@ import { useAuth0 } from '@auth0/auth0-react';
 import axios from '/src/lib/axios.js'
 import { FiEye, FiDownload, FiTrash2 } from 'react-icons/fi';
 import UserInfo from '../../pages/UserInfo.jsx';
+import HeaderDash from '../DashBoard/HeaderDash.jsx';
 
 const ProfilePage = () => {
     const { user, isLoading, isAuthenticated } = useAuth0();
@@ -46,6 +47,7 @@ const ProfilePage = () => {
 
     return (
         <div>
+            <HeaderDash></HeaderDash>
             <UserInfo user={user}></UserInfo>
             <div className="p-6">
                 <h1 className="text-2xl font-bold text-center mb-6">Your Saved Drawings</h1>

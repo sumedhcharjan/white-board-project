@@ -37,7 +37,8 @@ export const clearElements = async (req, res) => {
 
       room.drawingData = [];
       await room.save();
-      io.emit('clearcanvas');
+      // io.emit('clearcanvas');
+      io.to(roomid).emit('clearCanvas')
 
       res.status(200).json({ msg: 'Room cleared successfully!' });
   } catch (error) {

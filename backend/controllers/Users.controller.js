@@ -42,7 +42,7 @@ export const sendSavedDrawings = async (req, res) => {
     try {
         const { userid } = req.params;
         const user = await User.findOne({ userid });
-        if (!user) return res.status(404).json({ success: false, message: "User not found" });
+        if (!user) return res.status(404).json({ success: false, message: "No Saved Drawings" });
         res.status(200).json({ success: true, drawings: user.savedDrawings });
     } catch (error) {
         res.status(500).json({ success: false, error: error.message });
