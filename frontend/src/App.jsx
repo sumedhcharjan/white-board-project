@@ -1,4 +1,4 @@
-import LandingPage from './pages/landingPage'
+import LandingPage from './pages/LandingPage'
 import './style/App.css'
 import { RouterProvider, createBrowserRouter } from 'react-router-dom';
 import Dashboard from './pages/Dashboard';
