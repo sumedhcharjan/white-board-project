@@ -1,5 +1,5 @@
 import { io } from 'socket.io-client';
-const socket = io('https://collabboard-8o88.onrender.com', {
+const socket = io('http://localhost:8080', {
     transports: ['websocket'],
     withCredentials: true,
 });
