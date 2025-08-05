@@ -2,6 +2,7 @@ import React, { useState } from 'react'
 import { useAuth0 } from '@auth0/auth0-react';
 import { useParams } from 'react-router-dom';
 import axios from '/src/lib/axios.js'
+import toast from 'react-hot-toast';
 const SaveImageModal = ({onClose}) => {
     const { user } = useAuth0();
     const { roomid } = useParams();
@@ -14,13 +15,14 @@ const SaveImageModal = ({onClose}) => {
             console.log(imgdataUrl);
             const res = await axios.post('/room/savedrawing', { userid: user.sub, roomid, imgurl: imgdataUrl,title });
             console.log(res);
+            toast.success("Saved Image Successfully")
             onClose();
         } catch (error) {
             console.log(error);
         }
     }
     return (
-        <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
+        <div className="fixed inset-0 bg-transperent bg-opacity-50 z-50 flex items-center justify-center">
             <div className="bg-white p-6 rounded-2xl shadow-lg w-full max-w-md">
                 <h2 className="text-lg font-semibold mb-4 text-gray-800">Add a Title</h2>
                 <input

@@ -7,10 +7,9 @@ import HeaderDash from '../DashBoard/HeaderDash.jsx';
 import { useNavigate } from 'react-router-dom';
 
 const ProfilePage = () => {
-    const { user, isLoading, isAuthenticated,logout } = useAuth0();
+    const { user, isLoading, isAuthenticated, logout } = useAuth0();
     const [savedD, setsavedD] = useState([]);
-    const navigate=useNavigate();
-    
+    const navigate = useNavigate();
 
     useEffect(() => {
         const getDrawings = async () => {
@@ -27,10 +26,10 @@ const ProfilePage = () => {
 
     if (isLoading) {
         return (
-            <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#C2D9FF]/10 via-white to-[#8E8FFA]/10">
+            <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#FAFAFA] via-[#FAFAFA] to-[#7C3AED]/10">
                 <div className="text-center">
-                    <div className="w-12 h-12 border-4 border-[#7752FE] border-t-transparent rounded-full animate-spin"></div>
-                    <p className="mt-4 text-[#190482] text-lg font-semibold">Loading your profile...</p>
+                    <div className="w-12 h-12 border-4 border-[#14B8A6] border-t-transparent rounded-full animate-spin"></div>
+                    <p className="mt-4 text-[#2D3748] text-lg font-semibold">Loading your profile...</p>
                 </div>
             </div>
         );
@@ -38,10 +37,10 @@ const ProfilePage = () => {
 
     if (!isAuthenticated || !user) {
         return (
-            <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#C2D9FF]/10 via-white to-[#8E8FFA]/10">
+            <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#FAFAFA] via-[#FAFAFA] to-[#7C3AED]/10">
                 <div className="text-center">
-                    <p className="text-red-600 text-lg font-semibold">You must be logged in to view this page.</p>
-                    <a href="/login" className="mt-4 inline-block bg-[#7752FE] text-white px-6 py-2 rounded-md hover:bg-[#8E8FFA] transition-all duration-200">Log In</a>
+                    <p className="text-[#2D3748] text-lg font-semibold">You must be logged in to view this page.</p>
+                    <a href="/login" className="mt-4 inline-block bg-[#14B8A6] text-white px-6 py-2 rounded-md hover:bg-[#FBBF24] transition-all duration-200">Log In</a>
                 </div>
             </div>
         );
@@ -62,19 +61,19 @@ const ProfilePage = () => {
     };
 
     return (
-        <div className="relative min-h-screen bg-gradient-to-br from-[#C2D9FF]/10 via-white to-[#8E8FFA]/10 font-sans">
+        <div className="relative min-h-screen bg-gradient-to-br from-[#FAFAFA] via-[#FAFAFA] to-[#7C3AED]/10 font-sans">
             {/* Background Pattern */}
-            <div className="absolute inset-0 -z-10 h-full w-full bg-[radial-gradient(circle_at_center,#7752FE_1px,transparent_1px)] bg-[size:3rem_3rem] opacity-5">
-                <div className="absolute bottom-0 left-0 right-0 h-1/3 bg-gradient-to-t from-[#8E8FFA]/20 to-transparent"></div>
+            <div className="absolute inset-0 -z-10 h-full w-full bg-[radial-gradient(circle_at_center,#7C3AED_1px,transparent_1px)] bg-[size:3rem_3rem] opacity-5">
+                <div className="absolute bottom-0 left-0 right-0 h-1/3 bg-gradient-to-t from-[#7C3AED]/20 to-transparent"></div>
             </div>
 
-            <header className="bg-[#190482] shadow-md sticky top-0 z-50">
+            <header className="bg-[#14B8A6] shadow-md sticky top-0 z-50">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
                     <h1 className="text-2xl font-bold text-white">CollabBoard</h1>
                     <div className="flex items-center space-x-3">
-                        {/* <span className="text-[#C2D9FF] text-sm">{user?.name || user?.nickname || "User"}</span> */}
+                        {/* <span className="text-white text-sm">{user?.name || user?.nickname || "User"}</span> */}
                         <button
-                            className="p-2 rounded-xl bg-[#7752FE] text-white hover:bg-[#8E8FFA] transition transform hover:scale-105"
+                            className="p-2 rounded-xl bg-[#14B8A6] text-white hover:bg-[#FBBF24] transition transform hover:scale-105"
                             onClick={() => navigate('/profile')}
                             title="Profile"
                         >
@@ -83,7 +82,7 @@ const ProfilePage = () => {
                             </svg>
                         </button>
                         <button
-                            className="p-2 rounded-xl bg-[#7752FE] text-white hover:bg-[#8E8FFA] transition transform hover:scale-105"
+                            className="p-2 rounded-xl bg-[#14B8A6] text-white hover:bg-[#FBBF24] transition transform hover:scale-105"
                             onClick={() => navigate('/dashboard')}
                             title="Home"
                         >
@@ -92,7 +91,7 @@ const ProfilePage = () => {
                             </svg>
                         </button>
                         <button
-                            className="p-2 rounded-xl bg-[#7752FE] text-white hover:bg-[#8E8FFA] transition transform hover:scale-105"
+                            className="p-2 rounded-xl bg-[#14B8A6] text-white hover:bg-[#FBBF24] transition transform hover:scale-105"
                             onClick={() => logout({ returnTo: window.location.origin })}
                             title="Logout"
                         >
@@ -104,20 +103,19 @@ const ProfilePage = () => {
                 </div>
             </header>
 
-
             <UserInfo user={user} />
 
             <main className="max-w-[1920px] mx-auto px-4 sm:px-6 lg:px-8 py-6">
-                <h1 className="text-2xl sm:text-3xl font-bold text-[#190482] text-center mb-6 animate-fade-in">Your Saved Drawings</h1>
+                <h1 className="text-2xl sm:text-3xl font-bold text-[#2D3748] text-center mb-6 animate-fade-in">Your Saved Drawings</h1>
 
-                <div className="bg-white rounded-xl shadow-2xl overflow-hidden animate-fade-in">
-                    <div className="bg-gradient-to-r from-[#190482] to-[#7752FE] text-white p-4">
+                <div className="bg-[#FAFAFA] rounded-xl shadow-2xl overflow-hidden animate-fade-in">
+                    <div className="bg-gradient-to-r from-[#14B8A6] to-[#14B8A6] text-white p-4">
                         <h2 className="text-lg font-semibold">Drawing Collection</h2>
                     </div>
                     <div className="overflow-x-auto">
                         <table className="min-w-full">
                             <thead>
-                                <tr className="bg-[#C2D9FF]/20 text-[#190482]">
+                                <tr className="bg-[#7C3AED]/20 text-[#2D3748]">
                                     <th className="py-3 px-4 text-left text-sm font-semibold">Title</th>
                                     <th className="py-3 px-4 text-left text-sm font-semibold">Room ID</th>
                                     <th className="py-3 px-4 text-left text-sm font-semibold">Date</th>
@@ -128,12 +126,12 @@ const ProfilePage = () => {
                                 {savedD.map((drawing, idx) => (
                                     <tr
                                         key={idx}
-                                        className={`border-b border-[#C2D9FF]/30 hover:bg-[#C2D9FF]/20 transition-all duration-200 animate-slide-in`}
+                                        className={`border-b border-[#7C3AED]/30 hover:bg-[#7C3AED]/20 transition-all duration-200 animate-slide-in`}
                                         style={{ animationDelay: `${idx * 0.1}s` }}
                                     >
-                                        <td className="py-3 px-4 text-[#190482]">{drawing.title}</td>
-                                        <td className="py-3 px-4 text-[#190482]">{drawing.roomid}</td>
-                                        <td className="py-3 px-4 text-[#190482]">
+                                        <td className="py-3 px-4 text-[#2D3748]">{drawing.title}</td>
+                                        <td className="py-3 px-4 text-[#2D3748]">{drawing.roomid}</td>
+                                        <td className="py-3 px-4 text-[#2D3748]">
                                             {new Date(drawing.date).toLocaleDateString()}
                                         </td>
                                         <td className="py-3 px-4">
@@ -143,7 +141,7 @@ const ProfilePage = () => {
                                                     href={drawing.url}
                                                     target="_blank"
                                                     rel="noopener noreferrer"
-                                                    className="text-[#7752FE] hover:text-[#8E8FFA] transform hover:scale-105 transition-all duration-200"
+                                                    className="text-[#14B8A6] hover:text-[#FBBF24] transform hover:scale-105 transition-all duration-200"
                                                     title="View Drawing"
                                                 >
                                                     <FiEye />
@@ -152,7 +150,7 @@ const ProfilePage = () => {
                                                 <a
                                                     href={`${drawing.url.replace("/upload/", "/upload/fl_attachment:" + drawing.title + "/")}`}
                                                     download
-                                                    className="text-[#7752FE] hover:text-[#8E8FFA] transform hover:scale-105 transition-all duration-200"
+                                                    className="text-[#14B8A6] hover:text-[#FBBF24] transform hover:scale-105 transition-all duration-200"
                                                     title="Download Drawing"
                                                 >
                                                     <FiDownload />
@@ -171,10 +169,10 @@ const ProfilePage = () => {
                                 ))}
                                 {savedD.length === 0 && (
                                     <tr>
-                                        <td colSpan="4" className="text-center py-8 text-gray-500">
+                                        <td colSpan="4" className="text-center py-8 text-[#2D3748]">
                                             <div className="flex flex-col items-center">
                                                 <svg
-                                                    className="w-16 h-16 text-[#C2D9FF] mb-4"
+                                                    className="w-16 h-16 text-[#7C3AED] mb-4"
                                                     fill="none"
                                                     stroke="currentColor"
                                                     viewBox="0 0 24 24"
@@ -187,10 +185,10 @@ const ProfilePage = () => {
                                                         d="M12 4v16m8-8H4"
                                                     />
                                                 </svg>
-                                                <p className="text-lg font-semibold text-[#190482]">
+                                                <p className="text-lg font-semibold text-[#2D3748]">
                                                     No drawings saved yet.
                                                 </p>
-                                                <p className="text-sm">Start creating and save your masterpieces!</p>
+                                                <p className="text-sm text-[#2D3748]">Start creating and save your masterpieces!</p>
                                             </div>
                                         </td>
                                     </tr>
