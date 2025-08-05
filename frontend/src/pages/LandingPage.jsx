@@ -5,7 +5,7 @@ import Landingbody from '../components/landingPage/LandingBody'
 const landingPage = () => {
   return (
     <>
-      <Header/>
+      {/* <Header/> */}
       <Landingbody/>     
     </>
   )

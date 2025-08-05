@@ -19,16 +19,34 @@ io.on('connection', (socket) => {
     socket.on('joinroom', ({ roomid, name, userid }) => {
         socket.join(roomid);
         console.log("Join Room");
-        socket.id = userid;
+        // socket.id = userid;
+        socket.to(roomid).emit('User Joined', socket.id);
     });
+    socket.on('offer', (offer, targetId) => {
+        socket.to(targetId).emit('offer', offer, socket.id);
+    });
+    socket.on('answer', (answer, targetId) => {
+        socket.to(targetId).emit('answer', answer);
+    });
+
+    socket.on('ice-candidate', (candidate, targetId) => {
+        socket.to(targetId).emit('ice-candidate', candidate);
+    });
+
+    socket.on('toggle-mic', (roomId, micStatus) => {
+        socket.to(roomId).emit('mic-status', { userId: socket.id, micStatus });
+    });
+
     socket.on('leaveroom', ({ roomid, name }) => {
         socket.leave(roomid);
         console.log("uioii");
+        socket.broadcast.emit('User Left', socket.id);
         // socket.to(roomid).emit('User Left',{name});
     });
     socket.on('KickOut', ({ roomid, userid, username }) => {
         console.log(userid);
         socket.to(roomid).emit('User Kicked', username)
+        socket.broadcast.emit('User Left', userid);
     })
     socket.on('sendChat', async ({ roomid, name, sender, message }) => {
         try {

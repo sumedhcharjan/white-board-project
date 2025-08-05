@@ -9,12 +9,13 @@ const Chats = ({ msgs, setshowchat }) => {
     const navigate = useNavigate();
     const chatRef = useRef(null);
     const [chatinp, setchatinp] = useState('');
+
     useEffect(() => {
         if (chatRef.current) {
             chatRef.current.scrollTop = chatRef.current.scrollHeight;
         }
     }, [msgs]);
-    // console.log(msgs);
+
     const handleSendMessage = (e) => {
         e.preventDefault();
         if (!chatinp.trim()) return;
@@ -28,12 +29,17 @@ const Chats = ({ msgs, setshowchat }) => {
     };
 
     return (
-        <div className="fixed left-0 top-0 h-full w-80 bg-gradient-to-b from-[#1B4242] to-[#092635] text-[#F5F6F5] shadow-2xl z-50 p-4 flex flex-col transition-all duration-300">
+        <div className="fixed right-0 top-0 h-full w-full sm:w-80 bg-white shadow-2xl z-50 p-4 flex flex-col transition-all duration-300 animate-slide-in">
             <div className="flex justify-between items-center mb-4">
-                <h2 className="text-xl font-bold text-[#9EC8B9] tracking-wide">Room Chat</h2>
+                <h2 className="text-lg font-semibold text-[#190482] flex items-center gap-2">
+                    <svg className="w-6 h-6 text-[#7752FE]" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path>
+                    </svg>
+                    Room Chat
+                </h2>
                 <button
                     onClick={() => setshowchat((prev) => !prev)}
-                    className="text-[#9EC8B9] hover:text-red-400 text-2xl font-bold transition-colors duration-200"
+                    className="text-[#7752FE] hover:text-[#8E8FFA] text-xl font-bold transition-colors duration-200"
                     aria-label="Close chat"
                 >
                     ×
@@ -41,7 +47,7 @@ const Chats = ({ msgs, setshowchat }) => {
             </div>
             <div
                 ref={chatRef}
-                className="flex-1 bg-[#092635]/80 backdrop-blur-sm p-3 rounded-lg overflow-y-auto max-h-[calc(100vh-180px)] scroll-smooth"
+                className="flex-1 bg-[#C2D9FF]/10 p-3 rounded-lg overflow-y-auto max-h-[calc(100vh-180px)] scroll-smooth"
             >
                 {msgs && msgs.length > 0 ? (
                     msgs.map((m, index) => (
@@ -49,13 +55,13 @@ const Chats = ({ msgs, setshowchat }) => {
                             key={`${m.sender}-${m.timestamp}-${index}`}
                             className={`mb-3 flex ${
                                 user.sub === m.sender ? 'justify-end' : 'justify-start'
-                            } animate-fade-in`}
+                            }`}
                         >
                             <div
                                 className={`max-w-[70%] p-3 rounded-lg shadow-sm ${
                                     user.sub === m.sender
-                                        ? 'bg-[#5C8374] text-[#F5F6F5]'
-                                        : 'bg-[#1B4242] text-[#9EC8B9]'
+                                        ? 'bg-[#7752FE] text-white'
+                                        : 'bg-[#C2D9FF]/30 text-[#190482]'
                                 }`}
                             >
                                 <div className="flex justify-between items-baseline gap-2">
@@ -74,7 +80,7 @@ const Chats = ({ msgs, setshowchat }) => {
                         </div>
                     ))
                 ) : (
-                    <p className="text-sm text-gray-400 italic text-center">No messages yet. Start chatting!</p>
+                    <p className="text-sm text-gray-500 italic text-center">No messages yet. Start chatting!</p>
                 )}
             </div>
             <form onSubmit={handleSendMessage} className="mt-3 flex gap-2">
@@ -83,11 +89,11 @@ const Chats = ({ msgs, setshowchat }) => {
                     value={chatinp}
                     onChange={(e) => setchatinp(e.target.value)}
                     placeholder="Type a message..."
-                    className="flex-1 bg-[#1B4242] text-[#9EC8B9] p-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#5C8374] transition-all duration-200"
+                    className="flex-1 bg-[#C2D9FF]/10 text-[#190482] p-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#7752FE] transition-all duration-200"
                 />
                 <button
                     type="submit"
-                    className="bg-[#5C8374] text-[#F5F6F5] px-4 py-2 rounded-lg hover:bg-[#9EC8B9] hover:text-[#092635] transition-all duration-200"
+                    className="bg-[#7752FE] text-white px-4 py-2 rounded-lg hover:bg-[#8E8FFA] transition-all duration-200"
                 >
                     Send
                 </button>

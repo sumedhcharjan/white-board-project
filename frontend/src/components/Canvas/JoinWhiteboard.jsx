@@ -148,7 +148,7 @@ const Whiteboard = ({ selectedColor, selectedTool, candraw, elements, width }) =
     };
 
     return (
-        <div className="p-3 w-full h-170">
+        <div className="p-3 w-full h-auto">
             <div className="flex items-center justify-between">
                 {candraw ? (
                     <div className='flex w-17 justify-between align-middle p-2'>
