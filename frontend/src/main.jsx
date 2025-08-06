@@ -11,14 +11,14 @@ createRoot(document.getElementById('root')).render(
     domain="dev-eiqbf3dufeploub7.us.auth0.com"
     clientId="fIIXOxWwmSkOM3N6vrX7Qvt2G88hCbSo"
     authorizationParams={{
-      redirect_uri: "http://localhost:5173/dashboard"
+      redirect_uri: window.location.origin + "/dashboard"
     }}
     cacheLocation="localstorage"
     useRefreshTokens={true}
   >
-  <StrictMode>
-    <App />
-  </StrictMode>
+    <StrictMode>
+      <App />
+    </StrictMode>
   </Auth0Provider>
-
 )
+
