@@ -84,7 +84,7 @@ const Chats = ({ msgs, setshowchat }) => {
                 <input
                     type="text"
                     value={chatinp}
-                    onKeyDown={(e)=>if(e.key === 'Enter') handleSendMessage(e)}
+                    onKeyDown={(e) => e.key === 'Enter' && handleSendMessage(e)}
                     onChange={(e) => setchatinp(e.target.value)}
                     placeholder="Type a message..."
                     className="flex-1 bg-[#C2D9FF]/10 text-[#190482] p-2 sm:p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#7752FE] transition-all duration-200 text-sm sm:text-base"
