@@ -7,12 +7,10 @@ import ProfileRoutes from './routes/Profile.routes.js'
 import { app, server } from './lib/socket.js';
 config();
 const P = process.env.port;
-app.use(cors(
-    {
-        origin:[ "http://localhost:5173" ,"https://collabboard-cyan.vercel.app/"],
-        credentials: true,
-    }
-));
+app.use(cors({
+    origin: ["http://localhost:5173", "https://collabboard-cyan.vercel.app"],
+    credentials: true,
+}));
 app.use(express.json());
 
 app.use('/api/room', RoomRoutes);
