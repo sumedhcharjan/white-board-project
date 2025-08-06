@@ -3,6 +3,7 @@ import { useAuth0 } from "@auth0/auth0-react";
 import { useNavigate, useParams } from 'react-router-dom';
 import axios from '/src/lib/axios.js';
 import socket from '/src/lib/socket.js';
+import { MdPeople } from 'react-icons/md';
 
 const Participants = ({ participants, onClose, hostid, isHost }) => {
     const { user } = useAuth0();
@@ -50,7 +51,7 @@ const Participants = ({ participants, onClose, hostid, isHost }) => {
                         <div key={index} className="bg-[#C2D9FF]/10 rounded-lg flex justify-between items-center p-2 sm:p-3">
                             <li className="flex items-center gap-2 text-[#190482] text-sm sm:text-base">
                                 {p.id === user.sub && <span className="text-sm opacity-50">*</span>}
-                                {p.name}
+                                <MdPeople size={24} /> {p.name}
                                 {p.id === hostid && <span className="text-xs opacity-60">(Host)</span>}
                             </li>
                             <div className="flex gap-2">

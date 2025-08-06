@@ -146,14 +146,17 @@ const Whiteboard = ({ selectedColor, selectedTool, candraw, elements, width }) =
     const stopDraw = () => {
         setIsDrawing(false);
     };
+    const comingSoon=()=>{
+        toast.success("Coming Soon");
+    }
 
     return (
         <div className="p-3 w-full h-auto">
             <div className="flex items-center justify-between">
                 {candraw ? (
                     <div className='flex w-17 justify-between align-middle p-2'>
-                        <button className='p-1 mr-1 '>↶</button>
-                        <button className='p-1 ml-1'>↷</button>
+                        <button className='p-1 mr-1 ' onClick={comingSoon}>↶</button>
+                        <button className='p-1 ml-1' onClick={comingSoon}>↷</button>
                     </div>
                 ) : null}
                 {candraw ? (
