@@ -9,7 +9,7 @@ config();
 const P = process.env.port;
 app.use(cors(
     {
-        origin: "http://localhost:5173",
+        origin:[ "http://localhost:5173" ,"https://collabboard-cyan.vercel.app/"],
         credentials: true,
     }
 ));
