@@ -45,7 +45,7 @@ const Chats = ({ msgs, setshowchat }) => {
                     ×
                 </button>
             </div>
-            <div>
+            <div
                 ref={chatRef}
                 className="flex-1 bg-[#C2D9FF]/10 p-2 sm:p-3 rounded-lg overflow-y-auto max-h-[calc(100vh-10rem)] sm:max-h-[calc(100vh-11rem)] md:max-h-[calc(100vh-12rem)] scroll-smooth"
             >
