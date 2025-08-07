@@ -151,6 +151,7 @@ const DashBody = () => {
                 <button
                   className="bg-[#14B8A6] text-white px-6 py-2 rounded-full hover:bg-[#FBBF24] transition transform hover:scale-105"
                   onClick={handleJoinRoom}
+                   disabled={joining}
                   aria-label="Join room"
                 >
                   Join
@@ -187,6 +188,7 @@ const DashBody = () => {
                 <button
                   className="bg-[#14B8A6] text-white px-6 py-2 rounded-full hover:bg-[#FBBF24] transition transform hover:scale-105"
                   onClick={handleCreateJoin}
+                  disabled={joining}
                   aria-label="Join created room"
                 >
                   Join
