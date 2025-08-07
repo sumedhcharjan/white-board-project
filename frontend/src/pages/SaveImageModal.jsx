@@ -6,16 +6,18 @@ import toast from 'react-hot-toast';
 const SaveImageModal = ({onClose}) => {
     const { user } = useAuth0();
     const { roomid } = useParams();
+    const [saving , setSaving] = useState(false);
     const [title, setTitle] = useState("")
     const handleSaveDrawing = async () => {
         try {
             const canvas = document.getElementById('Whiteboard');
             if (!canvas) return alert('No canvas Found!');
             const imgdataUrl = canvas.toDataURL('image/png');
-            console.log(imgdataUrl);
+            // console.log(imgdataUrl);
+            setSaving(true);
             const res = await axios.post('/room/savedrawing', { userid: user.sub, roomid, imgurl: imgdataUrl,title });
-            console.log(res);
             toast.success("Saved Image Successfully")
+            setSaving(false);
             onClose();
         } catch (error) {
             console.log(error);
@@ -41,11 +43,13 @@ const SaveImageModal = ({onClose}) => {
                         Cancel
                     </button>
                     <button
-                        onClick={handleSaveDrawing}
-                        className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700"
+                      onClick={handleSaveDrawing}
+                      className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700"
+                      disabled={saving}
                     >
-                        Save
+                      {saving ? "Saving.." : "Save"}
                     </button>
+    
                 </div>
             </div>
         </div>
