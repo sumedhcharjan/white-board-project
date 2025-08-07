@@ -154,7 +154,7 @@ const DashBody = () => {
                    disabled={joining}
                   aria-label="Join room"
                 >
-                  Join
+                  {joining ? "joining.." : "join"}
                 </button>
               </div>
             </div>
@@ -191,7 +191,7 @@ const DashBody = () => {
                   disabled={joining}
                   aria-label="Join created room"
                 >
-                  Join
+                  {joining ? "joining.." : "join"}
                 </button>
               </div>
             </div>
