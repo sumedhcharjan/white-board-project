@@ -164,7 +164,7 @@ const DashBody = () => {
               <h2 className="text-2xl font-bold text-[#2D3748] mb-4 tracking-tight">Your Room Code</h2>
               <input
                 type="text"
-                value={roomid}
+                value={roomid || "generating..."}
                 readOnly
                 className="w-full p-3 border-2 border-[#7C3AED] rounded-full mb-6 bg-white text-[#2D3748]"
                 aria-label="Room code (read-only)"
