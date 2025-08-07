@@ -9,15 +9,19 @@ import { useNavigate } from 'react-router-dom';
 const ProfilePage = () => {
     const { user, isLoading, isAuthenticated, logout } = useAuth0();
     const [savedD, setsavedD] = useState([]);
+    const [isDataLoading, setIsDataLoading] = useState(false); // New state for data loading
     const navigate = useNavigate();
 
     useEffect(() => {
         const getDrawings = async () => {
+            setIsDataLoading(true); // Start loading
             try {
                 const res = await axios.get(`/profile/${user?.sub}/savedDrawings`);
                 setsavedD(res.data.drawings);
             } catch (error) {
                 console.error(error);
+            } finally {
+                setIsDataLoading(false); // Stop loading
             }
         };
 
@@ -71,7 +75,6 @@ const ProfilePage = () => {
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
                     <h1 className="text-2xl font-bold text-white">CollabBoard</h1>
                     <div className="flex items-center space-x-3">
-                        {/* <span className="text-white text-sm">{user?.name || user?.nickname || "User"}</span> */}
                         <button
                             className="p-2 rounded-xl bg-[#14B8A6] text-white hover:bg-[#FBBF24] transition transform hover:scale-105"
                             onClick={() => navigate('/profile')}
@@ -108,95 +111,104 @@ const ProfilePage = () => {
             <main className="max-w-[1920px] mx-auto px-4 sm:px-6 lg:px-8 py-6">
                 <h1 className="text-2xl sm:text-3xl font-bold text-[#2D3748] text-center mb-6 animate-fade-in">Your Saved Drawings</h1>
 
-                <div className="bg-[#FAFAFA] rounded-xl shadow-2xl overflow-hidden animate-fade-in">
-                    <div className="bg-gradient-to-r from-[#14B8A6] to-[#14B8A6] text-white p-4">
-                        <h2 className="text-lg font-semibold">Drawing Collection</h2>
+                {isDataLoading ? (
+                    <div className="flex items-center justify-center py-12">
+                        <div className="text-center">
+                            <div className="w-12 h-12 border-4 border-[#14B8A6] border-t-transparent rounded-full animate-spin"></div>
+                            <p className="mt-4 text-[#2D3748] text-lg font-semibold">Loading your drawings...</p>
+                        </div>
                     </div>
-                    <div className="overflow-x-auto">
-                        <table className="min-w-full">
-                            <thead>
-                                <tr className="bg-[#7C3AED]/20 text-[#2D3748]">
-                                    <th className="py-3 px-4 text-left text-sm font-semibold">Title</th>
-                                    <th className="py-3 px-4 text-left text-sm font-semibold">Room ID</th>
-                                    <th className="py-3 px-4 text-left text-sm font-semibold">Date</th>
-                                    <th className="py-3 px-4 text-left text-sm font-semibold">Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {savedD.map((drawing, idx) => (
-                                    <tr
-                                        key={idx}
-                                        className={`border-b border-[#7C3AED]/30 hover:bg-[#7C3AED]/20 transition-all duration-200 animate-slide-in`}
-                                        style={{ animationDelay: `${idx * 0.1}s` }}
-                                    >
-                                        <td className="py-3 px-4 text-[#2D3748]">{drawing.title}</td>
-                                        <td className="py-3 px-4 text-[#2D3748]">{drawing.roomid}</td>
-                                        <td className="py-3 px-4 text-[#2D3748]">
-                                            {new Date(drawing.date).toLocaleDateString()}
-                                        </td>
-                                        <td className="py-3 px-4">
-                                            <div className="flex gap-4 text-lg">
-                                                {/* View */}
-                                                <a
-                                                    href={drawing.url}
-                                                    target="_blank"
-                                                    rel="noopener noreferrer"
-                                                    className="text-[#14B8A6] hover:text-[#FBBF24] transform hover:scale-105 transition-all duration-200"
-                                                    title="View Drawing"
-                                                >
-                                                    <FiEye />
-                                                </a>
-                                                {/* Download */}
-                                                <a
-                                                    href={`${drawing.url.replace("/upload/", "/upload/fl_attachment:" + drawing.title + "/")}`}
-                                                    download
-                                                    className="text-[#14B8A6] hover:text-[#FBBF24] transform hover:scale-105 transition-all duration-200"
-                                                    title="Download Drawing"
-                                                >
-                                                    <FiDownload />
-                                                </a>
-                                                {/* Delete */}
-                                                <button
-                                                    onClick={() => handleDelete(drawing)}
-                                                    className="text-red-500 hover:text-red-600 transform hover:scale-105 transition-all duration-200"
-                                                    title="Delete Drawing"
-                                                >
-                                                    <FiTrash2 />
-                                                </button>
-                                            </div>
-                                        </td>
+                ) : (
+                    <div className="bg-[#FAFAFA] rounded-xl shadow-2xl overflow-hidden animate-fade-in">
+                        <div className="bg-gradient-to-r from-[#14B8A6] to-[#14B8A6] text-white p-4">
+                            <h2 className="text-lg font-semibold">Drawing Collection</h2>
+                        </div>
+                        <div className="overflow-x-auto">
+                            <table className="min-w-full">
+                                <thead>
+                                    <tr className="bg-[#7C3AED]/20 text-[#2D3748]">
+                                        <th className="py-3 px-4 text-left text-sm font-semibold">Title</th>
+                                        <th className="py-3 px-4 text-left text-sm font-semibold">Room ID</th>
+                                        <th className="py-3 px-4 text-left text-sm font-semibold">Date</th>
+                                        <th className="py-3 px-4 text-left text-sm font-semibold">Actions</th>
                                     </tr>
-                                ))}
-                                {savedD.length === 0 && (
-                                    <tr>
-                                        <td colSpan="4" className="text-center py-8 text-[#2D3748]">
-                                            <div className="flex flex-col items-center">
-                                                <svg
-                                                    className="w-16 h-16 text-[#7C3AED] mb-4"
-                                                    fill="none"
-                                                    stroke="currentColor"
-                                                    viewBox="0 0 24 24"
-                                                    xmlns="http://www.w3.org/2000/svg"
-                                                >
-                                                    <path
-                                                        strokeLinecap="round"
-                                                        strokeLinejoin="round"
-                                                        strokeWidth="2"
-                                                        d="M12 4v16m8-8H4"
-                                                    />
-                                                </svg>
-                                                <p className="text-lg font-semibold text-[#2D3748]">
-                                                    No drawings saved yet.
-                                                </p>
-                                                <p className="text-sm text-[#2D3748]">Start creating and save your masterpieces!</p>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                )}
-                            </tbody>
-                        </table>
+                                </thead>
+                                <tbody>
+                                    {savedD.map((drawing, idx) => (
+                                        <tr
+                                            key={idx}
+                                            className={`border-b border-[#7C3AED]/30 hover:bg-[#7C3AED]/20 transition-all duration-200 animate-slide-in`}
+                                            style={{ animationDelay: `${idx * 0.1}s` }}
+                                        >
+                                            <td className="py-3 px-4 text-[#2D3748]">{drawing.title}</td>
+                                            <td className="py-3 px-4 text-[#2D3748]">{drawing.roomid}</td>
+                                            <td className="py-3 px-4 text-[#2D3748]">
+                                                {new Date(drawing.date).toLocaleDateString()}
+                                            </td>
+                                            <td className="py-3 px-4">
+                                                <div className="flex gap-4 text-lg">
+                                                    {/* View */}
+                                                    <a
+                                                        href={drawing.url}
+                                                        target="_blank"
+                                                        rel="noopener noreferrer"
+                                                        className="text-[#14B8A6] hover:text-[#FBBF24] transform hover:scale-105 transition-all duration-200"
+                                                        title="View Drawing"
+                                                    >
+                                                        <FiEye />
+                                                    </a>
+                                                    {/* Download */}
+                                                    <a
+                                                        href={`${drawing.url.replace("/upload/", "/upload/fl_attachment:" + drawing.title + "/")}`}
+                                                        download
+                                                        className="text-[#14B8A6] hover:text-[#FBBF24] transform hover:scale-105 transition-all duration-200"
+                                                        title="Download Drawing"
+                                                    >
+                                                        <FiDownload />
+                                                    </a>
+                                                    {/* Delete */}
+                                                    <button
+                                                        onClick={() => handleDelete(drawing)}
+                                                        className="text-red-500 hover:text-red-600 transform hover:scale-105 transition-all duration-200"
+                                                        title="Delete Drawing"
+                                                    >
+                                                        <FiTrash2 />
+                                                    </button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    ))}
+                                    {savedD.length === 0 && (
+                                        <tr>
+                                            <td colSpan="4" className="text-center py-8 text-[#2D3748]">
+                                                <div className="flex flex-col items-center">
+                                                    <svg
+                                                        className="w-16 h-16 text-[#7C3AED] mb-4"
+                                                        fill="none"
+                                                        stroke="currentColor"
+                                                        viewBox="0 0 24 24"
+                                                        xmlns="http://www.w3.org/2000/svg"
+                                                    >
+                                                        <path
+                                                            strokeLinecap="round"
+                                                            strokeLinejoin="round"
+                                                            strokeWidth="2"
+                                                            d="M12 4v16m8-8H4"
+                                                        />
+                                                    </svg>
+                                                    <p className="text-lg font-semibold text-[#2D3748]">
+                                                        No drawings saved yet.
+                                                    </p>
+                                                    <p className="text-sm text-[#2D3748]">Start creating and save your masterpieces!</p>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    )}
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
-                </div>
+                )}
             </main>
 
             {/* Tailwind Animation Keyframes */}
