@@ -94,14 +94,21 @@ const ProfilePage = () => {
                             </svg>
                         </button>
                         <button
-                            className="p-2 rounded-xl bg-[#14B8A6] text-white hover:bg-[#FBBF24] transition transform hover:scale-105"
-                            onClick={() => logout({ returnTo: window.location.origin })}
-                            title="Logout"
-                        >
-                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
-                            </svg>
-                        </button>
+  className="p-2 rounded-full bg-[#14B8A6] text-white hover:bg-[#FBBF24] transition transform hover:scale-105 border border-white"
+  onClick={() =>
+    logout({
+      logoutParams: {
+        returnTo: window.location.origin, // Corrected location
+      },
+    })
+  }
+  title="Logout"
+  aria-label="Log out"
+>
+  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
+  </svg>
+</button>
                     </div>
                 </div>
             </header>
