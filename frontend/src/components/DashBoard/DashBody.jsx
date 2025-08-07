@@ -9,6 +9,7 @@ const DashBody = () => {
   const navigate = useNavigate();
   const [joinid, setjoinid] = useState("");
   const [joining, setjoining] = useState(false);
+  const [join, setjoin] = useState(false);
   const [creating, setcreating] = useState(false);
   const [roomid, setroomid] = useState(null);
 
@@ -29,9 +30,10 @@ const DashBody = () => {
 
   const handleCreateJoin = async () => {
     try {
+      setjoin(true)
       const res = await axios.put('/room/joinroom', { user, Rid: roomid });
-      console.log(res);
       if (res?.data?.msg === 'Joined room') {
+        setjoin(false);
         navigate(`/room/${roomid}`);
         socket.emit('joinroom', {
           name: user.name || user.nickname || "Anonymous",
@@ -39,15 +41,17 @@ const DashBody = () => {
         });
       }
     } catch (error) {
+      setjoin(false)
       console.log(error);
     }
   };
 
   const handleJoinRoom = async () => {
     try {
+      setjoin(true)
       const res = await axios.put('/room/joinroom', { user, Rid: joinid });
-      console.log(res);
       if (res?.data?.msg === 'Joined room') {
+        setjoin(false)
         navigate(`/room/${joinid}`);
         socket.emit('joinroom', {
           name: user.name || user.nickname || "Anonymous",
@@ -56,6 +60,7 @@ const DashBody = () => {
       }
     } catch (error) {
       console.log(error);
+      setjoin(false)
     }
   };
 
@@ -151,10 +156,10 @@ const DashBody = () => {
                 <button
                   className="bg-[#14B8A6] text-white px-6 py-2 rounded-full hover:bg-[#FBBF24] transition transform hover:scale-105"
                   onClick={handleJoinRoom}
-                   disabled={joining}
+                   disabled={join}
                   aria-label="Join room"
                 >
-                  {joining ? "joining.." : "join"}
+                  {join ? "joining.." : "join"}
                 </button>
               </div>
             </div>
@@ -188,10 +193,10 @@ const DashBody = () => {
                 <button
                   className="bg-[#14B8A6] text-white px-6 py-2 rounded-full hover:bg-[#FBBF24] transition transform hover:scale-105"
                   onClick={handleCreateJoin}
-                  disabled={joining}
+                  disabled={join}
                   aria-label="Join created room"
                 >
-                  {joining ? "joining.." : "join"}
+                  {join ? "joining.." : "join"}
                 </button>
               </div>
             </div>
