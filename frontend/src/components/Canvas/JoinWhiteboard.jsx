@@ -41,7 +41,7 @@ const Whiteboard = ({ selectedColor, selectedTool, candraw, elements, width }) =
         return () => {
             resizeObserver.disconnect();
         };
-    }, [elementsArray]); // Depend on elementsArray to ensure redraws when it changes
+    }, [elementsArray]);
 
     useEffect(() => {
         const handleDrawElement = (line) => {
@@ -50,10 +50,9 @@ const Whiteboard = ({ selectedColor, selectedTool, candraw, elements, width }) =
 
         socket.on('drawElement', handleDrawElement);
         socket.on('clearCanvas', () => {
-            console.log('afsdaf');
             setElementsArray([]); // Clear local state
             redrawAll([]); // Clear canvas
-        })
+        });
 
         return () => {
             socket.off('drawElement', handleDrawElement);
@@ -88,9 +87,28 @@ const Whiteboard = ({ selectedColor, selectedTool, candraw, elements, width }) =
         });
     };
 
+    const getCoordinates = (e) => {
+        const canvas = canvasRef.current;
+        const rect = canvas.getBoundingClientRect();
+        if (e.type.includes('touch')) {
+            const touch = e.touches[0] || e.changedTouches[0];
+            return {
+                x: touch.clientX - rect.left,
+                y: touch.clientY - rect.top
+            };
+        }
+        return {
+            x: e.nativeEvent.offsetX,
+            y: e.nativeEvent.offsetY
+        };
+    };
+
     const startDraw = (e) => {
+        if (!candraw) return;
+        e.preventDefault(); // Prevent scrolling
         setIsDrawing(true);
-        setCoordinates({ x: e.nativeEvent.offsetX, y: e.nativeEvent.offsetY });
+        const coords = getCoordinates(e);
+        setCoordinates(coords);
     };
 
     const handleRequest = async () => {
@@ -105,28 +123,30 @@ const Whiteboard = ({ selectedColor, selectedTool, candraw, elements, width }) =
     };
 
     const draw = (e) => {
-        if (!isDrawing) return;
-
+        if (!isDrawing || !candraw) return;
+        e.preventDefault(); 
+        const newCoords = getCoordinates(e);
         const newElement = {
             type: selectedTool,
             color: selectedColor || '#000',
             width: width,
             points: [
                 { x: coordinates.x, y: coordinates.y },
-                { x: e.nativeEvent.offsetX, y: e.nativeEvent.offsetY }
+                { x: newCoords.x, y: newCoords.y }
             ]
         };
         setElementsArray(prev => [...prev, newElement]);
-        setCoordinates({ x: e.nativeEvent.offsetX, y: e.nativeEvent.offsetY });
-
+        setCoordinates(newCoords);
         socket.emit('newElement', { roomid, element: newElement });
     };
 
     const erase = (e) => {
-        if (!isDrawing) return;
+        if (!isDrawing || !candraw) return;
+        e.preventDefault(); // Prevent scrolling
         const canvas = canvasRef.current;
         const ctx = canvas.getContext('2d');
-        ctx.clearRect(e.nativeEvent.offsetX - 10, e.nativeEvent.offsetY - 10, 20, 20);
+        const coords = getCoordinates(e);
+        ctx.clearRect(coords.x - 10, coords.y - 10, 20, 20);
     };
 
     const clearAll = async () => {
@@ -143,19 +163,22 @@ const Whiteboard = ({ selectedColor, selectedTool, candraw, elements, width }) =
         }
     };
 
-    const stopDraw = () => {
+    const stopDraw = (e) => {
+        if (!candraw) return;
+        e.preventDefault(); // Prevent scrolling
         setIsDrawing(false);
     };
-    const comingSoon=()=>{
+
+    const comingSoon = () => {
         toast.success("Coming Soon");
-    }
+    };
 
     return (
         <div className="p-3 w-full h-auto">
             <div className="flex items-center justify-between">
                 {candraw ? (
                     <div className='flex w-17 justify-between align-middle p-2'>
-                        <button className='p-1 mr-1 ' onClick={comingSoon}>↶</button>
+                        <button className='p-1 mr-1' onClick={comingSoon}>↶</button>
                         <button className='p-1 ml-1' onClick={comingSoon}>↷</button>
                     </div>
                 ) : null}
@@ -183,7 +206,11 @@ const Whiteboard = ({ selectedColor, selectedTool, candraw, elements, width }) =
                 onMouseMove={candraw ? (erasing ? erase : draw) : undefined}
                 onMouseUp={candraw ? stopDraw : undefined}
                 onMouseLeave={candraw ? stopDraw : undefined}
-                className={`w-full h-full border-2 border-gray-700 block ${erasing ? 'cursor-pointer' : 'cursor-crosshair'}`}
+                onTouchStart={candraw ? startDraw : undefined}
+                onTouchMove={candraw ? (erasing ? erase : draw) : undefined}
+                onTouchEnd={candraw ? stopDraw : undefined}
+                onTouchCancel={candraw ? stopDraw : undefined}
+                className={`w-full h-full border-2 border-gray-700 block touch-none ${erasing ? 'cursor-pointer' : 'cursor-crosshair'}`}
             ></canvas>
         </div>
     );
