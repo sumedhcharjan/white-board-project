@@ -108,7 +108,7 @@ io.on('connection', (socket) => {
             { $push: { drawingData: element } },
             { upsert: true }
         );
-        socket.broadcast.emit('drawElement', element);
+        io.to(roomid).emit('drawElement', element);
     });
 
 
