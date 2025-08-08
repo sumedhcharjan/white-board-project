@@ -40,14 +40,14 @@ io.on('connection', (socket) => {
     socket.on('leaveroom', ({ roomid, name }) => {
         socket.leave(roomid);
         console.log("uioii");
-        socket.broadcast.emit('User Left', socket.id);
-        // socket.to(roomid).emit('User Left',{name});
+        // socket.broadcast.emit('User Left', socket.id);
+        socket.to(roomid).emit('User Left',{name});
     });
-    socket.on('KickOut', ({ roomid, userid, username }) => {
-        console.log(userid);
-        socket.to(roomid).emit('User Kicked', username)
-        socket.broadcast.emit('User Left', userid);
-    })
+    // socket.on('KickOut', ({ roomid, userid, username }) => {
+    //     console.log(userid);
+    //     socket.to(roomid).emit('User Kicked', username)
+    //     socket.broadcast.emit('User Left', userid);
+    // })
     socket.on('sendChat', async ({ roomid, name, sender, message }) => {
         try {
 
@@ -108,7 +108,7 @@ io.on('connection', (socket) => {
             { $push: { drawingData: element } },
             { upsert: true }
         );
-        socket.broadcast.emit('drawElement', element);
+        io.to(roomid).emit('drawElement', element);
     });
 
 
