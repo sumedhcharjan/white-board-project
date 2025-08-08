@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { useAuth0 } from "@auth0/auth0-react";
 import axios from '/src/lib/axios.js';
 import socket from '/src/lib/socket.js';
+import toast from 'react-hot-toast';
 
 const DashBody = () => {
   const { user, logout } = useAuth0();
@@ -66,7 +67,7 @@ const DashBody = () => {
 
   const handleCopy = () => {
     navigator.clipboard.writeText(roomid);
-    alert("Meeting ID copied to clipboard");
+    toast.success("Copied!");
   };
 
   return (
